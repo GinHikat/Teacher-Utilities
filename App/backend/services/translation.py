@@ -2,8 +2,12 @@ import os
 from pathlib import Path
 from docx import Document
 from deep_translator import GoogleTranslator
-import win32com.client
-import pythoncom
+try:
+    import win32com.client
+    import pythoncom
+    HAS_WIN32 = True
+except ImportError:
+    HAS_WIN32 = False
 import time
 
 def translate_text(text, target_lang="en"):
@@ -21,6 +25,9 @@ def translate_text(text, target_lang="en"):
 
 def convert_doc_to_docx(input_path: Path) -> Path:
     """Convert .doc file to .docx using Microsoft Word."""
+    if not HAS_WIN32:
+        raise ImportError("Conversion from .doc to .docx requires Microsoft Word (Windows). Please upload .docx files directly on Linux/Render.")
+        
     pythoncom.CoInitialize()
     try:
         word = win32com.client.Dispatch("Word.Application")
