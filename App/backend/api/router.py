@@ -48,7 +48,7 @@ async def start_translation(
 ):
     job_ids = []
     for file in files:
-        if not file.filename.lower().endswith(('.doc', '.docx')):
+        if not file.filename.lower().endswith(('.doc', '.docx', '.pdf')):
             continue
 
         job_id = str(uuid.uuid4())

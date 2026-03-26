@@ -56,11 +56,11 @@ function Translation() {
     const selectedFiles = Array.from(e.target.files)
     const validFiles = selectedFiles.filter(f => {
       const ext = f.name.split('.').pop().toLowerCase()
-      return ['doc', 'docx'].includes(ext)
+      return ['doc', 'docx', 'pdf'].includes(ext)
     })
 
     if (validFiles.length < selectedFiles.length) {
-      setError("Some files were skipped. Only .doc and .docx are supported.")
+      setError("Some files were skipped. Only .doc, .docx and .pdf are supported.")
     } else {
       setError(null)
     }
@@ -151,14 +151,14 @@ function Translation() {
                 className="border-2 border-dashed border-white/10 rounded-2xl p-10 text-center transition-all cursor-pointer hover:border-brand-500/50 hover:bg-brand-500/5"
                 onClick={() => document.getElementById('file-input').click()}
               >
-                <input type="file" id="file-input" className="hidden" accept=".doc,.docx" multiple onChange={handleFileChange} />
+                <input type="file" id="file-input" className="hidden" accept=".doc,.docx,.pdf" multiple onChange={handleFileChange} />
                 <div className="flex flex-col items-center gap-4">
                   <div className="p-4 rounded-full bg-white/5 text-gray-400">
                     <FileUp size={32} />
                   </div>
                   <div>
                     <h3 className="text-lg font-medium tracking-tight">Select or Drop Files</h3>
-                    <p className="text-sm text-gray-500">Supports multiple .doc and .docx files</p>
+                    <p className="text-sm text-gray-500">Supports multiple .docx and .pdf files</p>
                   </div>
                 </div>
               </div>

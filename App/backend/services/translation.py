@@ -8,7 +8,24 @@ try:
     HAS_WIN32 = True
 except ImportError:
     HAS_WIN32 = False
+
+try:
+    from pdf2docx import Converter
+    HAS_PDF2DOCX = True
+except ImportError:
+    HAS_PDF2DOCX = False
 import time
+
+def convert_pdf_to_docx(pdf_path: Path) -> Path:
+    """Convert PDF to .docx using pdf2docx."""
+    if not HAS_PDF2DOCX:
+        raise ImportError("pdf2docx library is not installed for PDF translation.")
+    
+    docx_path = pdf_path.with_suffix(".docx")
+    cv = Converter(str(pdf_path))
+    cv.convert(str(docx_path))
+    cv.close()
+    return docx_path
 
 def translate_text(text, target_lang="en"):
     """Translate text to target language."""
@@ -69,6 +86,10 @@ async def translate_full_document_async(input_path: Path, output_path: Path, tar
     # For .doc files
     if input_path.suffix.lower() == ".doc":
         input_path = convert_doc_to_docx(input_path)
+    
+    # For .pdf files
+    if input_path.suffix.lower() == ".pdf":
+        input_path = convert_pdf_to_docx(input_path)
 
     try:
         doc = Document(str(input_path))
