@@ -52,7 +52,7 @@ function Transcription() {
 
   const handleDownload = () => {
     if (resultFile) {
-      window.open(`/api/download/${resultFile}`, '_blank')
+      window.open(`${axios.defaults.baseURL}/api/download/${resultFile}`, '_blank')
     }
   }
 

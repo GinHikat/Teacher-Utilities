@@ -104,8 +104,7 @@ function Translation() {
 
   const handleDownload = (resultFile, filename) => {
     if (resultFile) {
-        // Use the explicit filename if provided, otherwise trust the server-side logic in FileResponse
-        window.open(`/api/download/${resultFile}`, '_blank')
+        window.open(`${axios.defaults.baseURL}/api/download/${resultFile}`, '_blank')
     }
   }
 

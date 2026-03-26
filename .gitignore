@@ -14,5 +14,7 @@ secrets/*
 
 files/*
 
+uploads/*
+
 __pycache__/*
 
