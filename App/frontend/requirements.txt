@@ -1,0 +1,12 @@
+# Frontend Dependencies (Node.js)
+react
+react-dom
+react-router-dom
+lucide-react
+framer-motion
+axios
+tailwindcss
+vite
+@vitejs/plugin-react
+postcss
+autoprefixer

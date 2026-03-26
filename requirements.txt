@@ -1,0 +1,10 @@
+pydub
+deep_translator
+tqdm
+python-docx
+pywin32
+google-cloud-speech
+google-auth
+python-dotenv
+ffmpeg-python
+mammoth
