@@ -3,13 +3,6 @@ from pathlib import Path
 from docx import Document
 from deep_translator import GoogleTranslator
 try:
-    import win32com.client
-    import pythoncom
-    HAS_WIN32 = True
-except ImportError:
-    HAS_WIN32 = False
-
-try:
     from pdf2docx import Converter
     HAS_PDF2DOCX = True
 except ImportError:
@@ -40,23 +33,7 @@ def translate_text(text, target_lang="en"):
         print(f"Translation error: {text[:30]}... -> {e}")
         return text
 
-def convert_doc_to_docx(input_path: Path) -> Path:
-    """Convert .doc file to .docx using Microsoft Word."""
-    if not HAS_WIN32:
-        raise ImportError("Conversion from .doc to .docx requires Microsoft Word (Windows). Please upload .docx files directly on Linux/Render.")
-        
-    pythoncom.CoInitialize()
-    try:
-        word = win32com.client.Dispatch("Word.Application")
-        word.Visible = False
-        doc = word.Documents.Open(str(input_path))
-        output_path = input_path.with_suffix(".docx")
-        doc.SaveAs(str(output_path), FileFormat=16)  # 16 = docx
-        doc.Close()
-        word.Quit()
-        return output_path
-    finally:
-        pythoncom.CoUninitialize()
+
 
 def translate_paragraph(paragraph, target_lang="en"):
     """Translate a single paragraph while preserving formatting."""
@@ -83,9 +60,7 @@ async def translate_full_document_async(input_path: Path, output_path: Path, tar
     if not input_path.exists():
         raise FileNotFoundError(f"File not found: {input_path}")
 
-    # For .doc files
-    if input_path.suffix.lower() == ".doc":
-        input_path = convert_doc_to_docx(input_path)
+
     
     # For .pdf files
     if input_path.suffix.lower() == ".pdf":
