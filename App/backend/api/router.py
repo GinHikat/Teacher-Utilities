@@ -55,6 +55,8 @@ async def start_translation(
         input_filename = f"{job_id}_{file.filename}"
         input_path = UPLOAD_DIR / input_filename
         output_filename = f"trans_{input_filename}"
+        if output_filename.lower().endswith(".pdf"):
+            output_filename = output_filename[:-4] + ".docx"
         output_path = OUTPUT_DIR / output_filename
 
         with open(input_path, "wb") as buffer:
@@ -65,7 +67,7 @@ async def start_translation(
         job_ids.append(job_id)
 
     if not job_ids:
-        raise HTTPException(status_code=400, detail="No valid .doc or .docx files uploaded.")
+        raise HTTPException(status_code=400, detail="No valid .docx or .pdf files uploaded.")
 
     return {"job_ids": job_ids}
 
@@ -115,4 +117,4 @@ async def download_file(filename: str):
     file_path = OUTPUT_DIR / filename
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
-    return FileResponse(path=file_path, filename=filename.split('_', 1)[-1] if '_' in filename else filename)
+    return FileResponse(path=file_path, filename=filename.split('_', 2)[-1] if '_' in filename else filename)

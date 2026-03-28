@@ -63,8 +63,12 @@ async def translate_full_document_async(input_path: Path, output_path: Path, tar
 
     
     # For .pdf files
+    is_pdf = False
+    temp_docx = None
     if input_path.suffix.lower() == ".pdf":
-        input_path = convert_pdf_to_docx(input_path)
+        is_pdf = True
+        temp_docx = convert_pdf_to_docx(input_path)
+        input_path = temp_docx
 
     try:
         doc = Document(str(input_path))
@@ -97,4 +101,12 @@ async def translate_full_document_async(input_path: Path, output_path: Path, tar
                         await progress_callback(completed, total_tasks)
 
     doc.save(str(output_path))
+    
+    # Cleanup temporary docx
+    if is_pdf and temp_docx and temp_docx.exists():
+        try:
+            temp_docx.unlink()
+        except:
+            pass
+
     return output_path
