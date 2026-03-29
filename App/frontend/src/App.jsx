@@ -20,7 +20,7 @@ function App() {
             className="flex items-center gap-2 font-bold text-xl group transition-all duration-300"
           >
             <span className="bg-brand-500 p-2 rounded-lg text-white group-hover:scale-110 group-hover:rotate-6 transition-all ring-4 ring-brand-500/10">
-              DF
+              TU
             </span>
             <span className="gradient-text font-extrabold uppercase tracking-tight">
               Teacher Utilities

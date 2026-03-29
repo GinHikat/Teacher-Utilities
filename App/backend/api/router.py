@@ -10,6 +10,10 @@ import zipfile
 
 router = APIRouter()
 
+@router.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
 UPLOAD_DIR = Path("uploads").resolve()
 OUTPUT_DIR = Path("outputs").resolve()
 UPLOAD_DIR.mkdir(exist_ok=True)
@@ -18,23 +22,51 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 # Shared memory for job progress
 jobs = {}
 
-async def update_job_progress(job_id, completed, total):
+async def update_job_progress(job_id, completed, total, message=None):
     progress = round((completed / total) * 100, 2) if total > 0 else 0
-    jobs[job_id] = {"status": "processing", "progress": progress}
+    if job_id not in jobs:
+        jobs[job_id] = {"status": "processing", "progress": progress, "logs": []}
+    
+    jobs[job_id]["status"] = "processing"
+    jobs[job_id]["progress"] = progress
+    if message:
+        jobs[job_id]["logs"].append(f"[{completed}/{total}] {message}")
+
+async def cleanup_old_files():
+    """Remove files older than 1 hour from uploads and outputs."""
+    import time
+    now = time.time()
+    for directory in [UPLOAD_DIR, OUTPUT_DIR]:
+        if not directory.exists():
+            continue
+        for file_path in directory.iterdir():
+            # Only delete files, and skip folders unless we specifically want to handle them
+            if file_path.is_file():
+                if now - file_path.stat().st_mtime > 3600: # 1 hour
+                    try:
+                        file_path.unlink()
+                    except:
+                        pass
 
 async def translate_task(job_id: str, input_path: Path, output_path: Path, target_lang: str):
     try:
         # Wrapper to pass job_id along with progression data
-        async def progress_wrapper(completed, total):
-            await update_job_progress(job_id, completed, total)
+        async def progress_wrapper(completed, total, message=None):
+            await update_job_progress(job_id, completed, total, message=message)
 
-        await translate_full_document_async(
+        jobs[job_id]["logs"].append(f"Starting translation for: {input_path.name}")
+        if input_path.suffix.lower() == ".pdf":
+            jobs[job_id]["logs"].append("Converting PDF to DOCX format...")
+
+        result_path = await translate_full_document_async(
             input_path, 
             output_path, 
             target_lang=target_lang,
             progress_callback=progress_wrapper
         )
-        jobs[job_id] = {"status": "completed", "progress": 100, "result_file": output_path.name}
+        jobs[job_id]["logs"].append("Finalizing document and saving...")
+        jobs[job_id].update({"status": "completed", "progress": 100, "result_file": output_path.name})
+        jobs[job_id]["logs"].append("✓ Progress Complete. File ready for download.")
     except Exception as e:
         jobs[job_id] = {"status": "failed", "error": str(e), "progress": 0}
 
@@ -62,8 +94,9 @@ async def start_translation(
         with open(input_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        jobs[job_id] = {"status": "queued", "progress": 0, "filename": file.filename}
+        jobs[job_id] = {"status": "queued", "progress": 0, "filename": file.filename, "logs": [f"File uploaded: {file.filename}"]}
         background_tasks.add_task(translate_task, job_id, input_path, output_path, target_lang)
+        background_tasks.add_task(cleanup_old_files)
         job_ids.append(job_id)
 
     if not job_ids:
@@ -73,6 +106,7 @@ async def start_translation(
 
 @router.post("/split-audio")
 async def start_audio_split(
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     chunk_minutes: int = Form(45)
 ):
@@ -97,6 +131,7 @@ async def start_audio_split(
             for f in split_files:
                 zipf.write(f, arcname=f.name)
         
+        background_tasks.add_task(cleanup_old_files)
         return {
             "job_id": job_id,
             "status": "completed",

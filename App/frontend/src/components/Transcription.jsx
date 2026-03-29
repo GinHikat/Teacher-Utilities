@@ -12,6 +12,10 @@ function Transcription() {
   const [resultFile, setResultFile] = useState(null)
   const [error, setError] = useState(null)
   const [numChunks, setNumChunks] = useState(0)
+  const [elapsedTime, setElapsedTime] = useState(0)
+  const [startTime, setStartTime] = useState(null)
+  const [isBooting, setIsBooting] = useState(false)
+  const [logs, setLogs] = useState([])
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0]
@@ -32,21 +36,40 @@ function Transcription() {
 
     setIsProcessing(true)
     setStatus('processing')
+    const newLogs = ["Initiating audio splitting request...", `Target chunk size: ${chunkMinutes} minutes`]
+    setLogs(newLogs)
+
+    setStartTime(Date.now())
+    const timer = setInterval(() => {
+        setElapsedTime(Math.floor((Date.now() - (startTime || Date.now())) / 1000))
+    }, 1000)
+
     const formData = new FormData()
     formData.append('file', file)
     formData.append('chunk_minutes', chunkMinutes)
 
     try {
-      const res = await axios.post('/api/split-audio', formData)
+      setLogs(prev => [...prev, "Uploading file to server...", "Awaiting server processing..."])
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
+      const fetchPromise = axios.post('/api/split-audio', formData);
+      
+      const res = await Promise.race([fetchPromise, timeoutPromise]);
+      setIsBooting(false);
+      setLogs(prev => [...prev, "✓ Server process completed successfully.", `Generated ${res.data.num_chunks} chunks.`, "Preparing download package..."])
       setJobId(res.data.job_id)
       setResultFile(res.data.result_file)
       setNumChunks(res.data.num_chunks)
       setStatus('completed')
     } catch (err) {
+      if (err.message === 'timeout' || !err.response) {
+        setIsBooting(true);
+      }
       setError(err.response?.data?.detail || "Upload failed")
       setStatus('failed')
     } finally {
       setIsProcessing(false)
+      clearInterval(timer)
+      setStartTime(null)
     }
   }
 
@@ -134,8 +157,45 @@ function Transcription() {
               <div className="relative">
                  <Loader2 className="animate-spin text-purple-500" size={80} strokeWidth={1.5} />
               </div>
-              <div className="text-center space-y-2">
-                <h3 className="text-2xl font-bold">Processing Audio...</h3>
+              <div className="text-center space-y-4">
+                <div className="space-y-2">
+                   <h3 className="text-2xl font-bold">Processing Audio...</h3>
+                   <p className="text-gray-400 text-purple-200/60 font-mono text-sm">Elapsed Time: {elapsedTime}s</p>
+                </div>
+                {isBooting && (
+                  <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-3 text-amber-500 text-sm max-w-sm mx-auto">
+                      <Loader2 className="animate-spin" size={18} />
+                      <p>Server is booting up (cold start from Render), this might take about 1 minute. Please wait...</p>
+                  </motion.div>
+                )}
+
+                {/* Terminal Log View */}
+                {logs.length > 0 && (
+                    <div className="w-full max-w-sm mx-auto bg-black/40 rounded-lg p-3 border border-white/5 font-mono text-[10px] leading-relaxed overflow-hidden text-left">
+                        <div className="flex items-center gap-2 mb-2 border-b border-white/5 pb-1">
+                            <div className="flex gap-1">
+                                <div className="w-1.5 h-1.5 rounded-full bg-red-500/50" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-amber-500/50" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-green-500/50" />
+                            </div>
+                            <span className="text-[8px] text-gray-500 uppercase tracking-widest leading-none">Transcription Console</span>
+                        </div>
+                        <div className="max-h-32 overflow-y-auto custom-scrollbar space-y-1">
+                            {logs.map((log, li) => (
+                                <div key={li} className="flex gap-2">
+                                    <span className="text-purple-500/50 select-none">›</span>
+                                    <span className="text-gray-300">{log}</span>
+                                </div>
+                            ))}
+                            {status === 'processing' && (
+                                <div className="flex gap-2 animate-pulse">
+                                    <span className="text-purple-400 select-none">›</span>
+                                    <span className="text-purple-400/50">_</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
                 <p className="text-gray-400 text-purple-200/60">We are splitting your file. Please wait.</p>
               </div>
             </motion.div>

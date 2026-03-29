@@ -10,8 +10,8 @@ dist/
 *.zip
 secrets/*
 files/*
-uploads/*
-outputs/*
+App/backend/uploads/*
+App/backend/outputs/*
 __pycache__/
 *.pyc
 *.pyo
