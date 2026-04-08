@@ -19,7 +19,13 @@ def split_media_by_duration(input_file: Path, output_dir: Path, chunk_minutes=45
     if result.returncode != 0:
         raise Exception(f"FFprobe error: {result.stderr}")
 
-    total_duration = float(result.stdout.strip())
+    duration_str = result.stdout.strip().split('\n')[0]
+    
+    try:
+        total_duration = float(duration_str)
+    except ValueError:
+        raise Exception(f"Cannot parse duration from FFprobe: '{result.stdout.strip()}' for file {input_file}")
+
     num_chunks = math.ceil(total_duration / chunk_seconds)
 
     output_files = []
@@ -41,9 +47,9 @@ def split_media_by_duration(input_file: Path, output_dir: Path, chunk_minutes=45
         ]
         
         if is_mp3:
-            ffmpeg_cmd.extend(["-c", "copy"])
+            ffmpeg_cmd.extend(["-map", "0:a:0", "-c", "copy"])
         else:
-            ffmpeg_cmd.extend(["-vn", "-acodec", "libmp3lame", "-b:a", "128k"])
+            ffmpeg_cmd.extend(["-map", "0:a:0", "-acodec", "libmp3lame", "-b:a", "128k"])
             
         ffmpeg_cmd.extend(["-y", str(output_file_path)])
 
