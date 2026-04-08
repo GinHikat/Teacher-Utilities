@@ -24,18 +24,33 @@ def split_media_by_duration(input_file: Path, output_dir: Path, chunk_minutes=45
 
     output_files = []
     
+    is_mp3 = input_file.suffix.lower() == '.mp3'
+    
     for i in range(num_chunks):
         start = i * chunk_seconds
-        output_file_name = f"{input_file.stem}_part_{i+1}{input_file.suffix}"
+        
+        # Ensure non-mp3 files or video files are safely converted to mp3 chunks
+        out_ext = ".mp3" if not is_mp3 else ".mp3"
+        output_file_name = f"{input_file.stem}_part_{i+1}{out_ext}"
         output_file_path = output_dir / output_file_name
 
-        subprocess.run([
+        ffmpeg_cmd = [
             "ffmpeg", "-i", str(input_file),
             "-ss", str(start),
-            "-t", str(chunk_seconds),
-            "-c", "copy",
-            "-y", str(output_file_path)
-        ], capture_output=True)
+            "-t", str(chunk_seconds)
+        ]
+        
+        if is_mp3:
+            ffmpeg_cmd.extend(["-c", "copy"])
+        else:
+            ffmpeg_cmd.extend(["-vn", "-acodec", "libmp3lame", "-b:a", "128k"])
+            
+        ffmpeg_cmd.extend(["-y", str(output_file_path)])
+
+        res = subprocess.run(ffmpeg_cmd, capture_output=True, text=True)
+        
+        if res.returncode != 0:
+            raise Exception(f"FFMPEG Error: {res.stderr}")
 
         if output_file_path.exists():
             output_files.append(output_file_path)
