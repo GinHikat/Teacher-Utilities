@@ -114,9 +114,12 @@ async def start_audio_split(
         raise HTTPException(status_code=400, detail="Invalid media file type.")
 
     job_id = str(uuid.uuid4())
-    input_filename = f"{job_id}_{file.filename}"
+    import re
+    safe_filename = re.sub(r'[\\/*?:"<>|\n\r]', "_", file.filename)
+    input_filename = f"{job_id}_{safe_filename}"
     input_path = UPLOAD_DIR / input_filename
     
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     with open(input_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
@@ -139,7 +142,11 @@ async def start_audio_split(
             "num_chunks": len(split_files)
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        import traceback
+        error_msg = f"Error during audio splitting: {str(e)}"
+        print(error_msg)
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=error_msg)
 
 @router.get("/job-status/{job_id}")
 async def get_job_status(job_id: str):

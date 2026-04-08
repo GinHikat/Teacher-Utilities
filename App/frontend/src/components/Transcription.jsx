@@ -49,11 +49,10 @@ function Transcription() {
     formData.append('chunk_minutes', chunkMinutes)
 
     try {
-      setLogs(prev => [...prev, "Uploading file to server...", "Awaiting server processing..."])
-      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
-      const fetchPromise = axios.post('/api/split-audio', formData);
+      setLogs(prev => [...prev, "Uploading file to server (this may take time for large files)...", "Awaiting server processing..."])
       
-      const res = await Promise.race([fetchPromise, timeoutPromise]);
+      const res = await axios.post('/api/split-audio', formData);
+      
       setIsBooting(false);
       setLogs(prev => [...prev, "✓ Server process completed successfully.", `Generated ${res.data.num_chunks} chunks.`, "Preparing download package..."])
       setJobId(res.data.job_id)
@@ -61,10 +60,10 @@ function Transcription() {
       setNumChunks(res.data.num_chunks)
       setStatus('completed')
     } catch (err) {
-      if (err.message === 'timeout' || !err.response) {
+      if (!err.response) {
         setIsBooting(true);
       }
-      setError(err.response?.data?.detail || "Upload failed")
+      setError(err.response?.data?.detail || "Upload failed. If the file is very large, it might have exceeded server limits.")
       setStatus('failed')
     } finally {
       setIsProcessing(false)

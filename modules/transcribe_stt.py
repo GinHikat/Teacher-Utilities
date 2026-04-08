@@ -84,9 +84,10 @@ def split_media_by_duration(input_file, chunk_minutes=45):
         "-show_entries", "format=duration",
         "-of", "default=noprint_wrappers=1:nokey=1",
         input_file
-    ], capture_output=True, text=True)
+    ], capture_output=True)
 
-    total_duration = float(result.stdout.strip())
+    stdout_text = result.stdout.decode('utf-8', errors='ignore')
+    total_duration = float(stdout_text.strip())
     num_chunks = math.ceil(total_duration / chunk_seconds)
 
     print(f"Total duration: {total_duration/60:.1f} min → {num_chunks} chunks of {chunk_minutes} min")
@@ -104,7 +105,7 @@ def split_media_by_duration(input_file, chunk_minutes=45):
             "-i", input_file,
             "-c", "copy",
             "-y", output_file
-        ])
+        ], capture_output=True)
 
         size_mb = os.path.getsize(output_file) / (1024 * 1024)
         print(f"  {output_file}: {size_mb:.1f} MB")

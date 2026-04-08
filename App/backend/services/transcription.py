@@ -8,23 +8,30 @@ def split_media_by_duration(input_file: Path, output_dir: Path, chunk_minutes=45
     """Split media file into chunks by duration."""
     chunk_seconds = chunk_minutes * 60
 
-    # Get total duration
-    result = subprocess.run([
-        "ffprobe", "-v", "error",
-        "-show_entries", "format=duration",
-        "-of", "default=noprint_wrappers=1:nokey=1",
-        str(input_file)
-    ], capture_output=True, text=True)
+    # Get total duration using a temporary file to avoid subprocess pipe decoding crashes on Windows
+    import tempfile
+    import json
 
-    if result.returncode != 0:
-        raise Exception(f"FFprobe error: {result.stderr}")
+    with tempfile.NamedTemporaryFile(delete=False) as tf:
+        temp_name = tf.name
 
-    duration_str = result.stdout.strip().split('\n')[0]
-    
     try:
-        total_duration = float(duration_str)
-    except ValueError:
-        raise Exception(f"Cannot parse duration from FFprobe: '{result.stdout.strip()}' for file {input_file}")
+        # We use JSON format for ffprobe as it's more reliable to parse
+        subprocess.run([
+            "ffprobe", "-v", "error",
+            "-show_entries", "format=duration",
+            "-of", "json",
+            str(input_file)
+        ], stdout=open(temp_name, 'w'), stderr=subprocess.DEVNULL, check=True)
+        
+        with open(temp_name, 'r') as f:
+            data = json.load(f)
+            total_duration = float(data['format']['duration'])
+    except Exception as e:
+        raise Exception(f"FFprobe duration parsing failed: {str(e)}")
+    finally:
+        if os.path.exists(temp_name):
+            os.remove(temp_name)
 
     num_chunks = math.ceil(total_duration / chunk_seconds)
 
@@ -36,7 +43,7 @@ def split_media_by_duration(input_file: Path, output_dir: Path, chunk_minutes=45
         start = i * chunk_seconds
         
         # Ensure non-mp3 files or video files are safely converted to mp3 chunks
-        out_ext = ".mp3" if not is_mp3 else ".mp3"
+        out_ext = ".mp3"
         output_file_name = f"{input_file.stem}_part_{i+1}{out_ext}"
         output_file_path = output_dir / output_file_name
 
@@ -55,12 +62,13 @@ def split_media_by_duration(input_file: Path, output_dir: Path, chunk_minutes=45
             
         ffmpeg_cmd.extend(["-y", str(output_file_path)])
 
-        res = subprocess.run(ffmpeg_cmd, capture_output=True, text=True)
+        # Run ffmpeg WITHOUT pipes to avoid the crashing background reader threads in Python on Windows
+        subprocess.run(ffmpeg_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         
-        if res.returncode != 0:
-            raise Exception(f"FFMPEG Error: {res.stderr}")
-
         if output_file_path.exists():
             output_files.append(output_file_path)
+            
+    if not output_files:
+         raise Exception("Process failed: No chunks generated. Confirm FFMPEG is installed and file is valid.")
 
     return output_files
