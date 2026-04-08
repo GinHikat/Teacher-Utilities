@@ -4,8 +4,8 @@ import math
 import subprocess
 from pathlib import Path
 
-def split_mp3_by_duration(input_file: Path, output_dir: Path, chunk_minutes=45):
-    """Split MP3 file into chunks by duration."""
+def split_media_by_duration(input_file: Path, output_dir: Path, chunk_minutes=45):
+    """Split media file into chunks by duration."""
     chunk_seconds = chunk_minutes * 60
 
     # Get total duration
@@ -26,7 +26,7 @@ def split_mp3_by_duration(input_file: Path, output_dir: Path, chunk_minutes=45):
     
     for i in range(num_chunks):
         start = i * chunk_seconds
-        output_file_name = f"{input_file.stem}_part_{i+1}.mp3"
+        output_file_name = f"{input_file.stem}_part_{i+1}{input_file.suffix}"
         output_file_path = output_dir / output_file_name
 
         subprocess.run([

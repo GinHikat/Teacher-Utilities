@@ -75,7 +75,7 @@ def transcribe_audio_file(audio_file_path, language_code="vi-VN"):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-def split_mp3_by_duration(input_file, chunk_minutes=45):
+def split_media_by_duration(input_file, chunk_minutes=45):
     chunk_seconds = chunk_minutes * 60
 
     # Get total duration
@@ -90,10 +90,12 @@ def split_mp3_by_duration(input_file, chunk_minutes=45):
     num_chunks = math.ceil(total_duration / chunk_seconds)
 
     print(f"Total duration: {total_duration/60:.1f} min → {num_chunks} chunks of {chunk_minutes} min")
+    
+    input_path = Path(input_file) if 'Path' in globals() else type('Path', (), {'__new__': lambda cls, p: __import__('pathlib').Path(p)})(input_file)
 
     for i in range(num_chunks):
         start = i * chunk_seconds
-        output_file = f"output_part_{i+1}.mp3"
+        output_file = f"output_{input_path.stem}_part_{i+1}{input_path.suffix}"
 
         subprocess.run([
             "ffmpeg", "-i", input_file,

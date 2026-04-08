@@ -5,7 +5,7 @@ import uuid
 import os
 from pathlib import Path
 from services.translation import translate_full_document_async
-from services.transcription import split_mp3_by_duration
+from services.transcription import split_media_by_duration
 import zipfile
 
 router = APIRouter()
@@ -110,8 +110,8 @@ async def start_audio_split(
     file: UploadFile = File(...),
     chunk_minutes: int = Form(45)
 ):
-    if not file.filename.lower().endswith(('.mp3', '.wav', '.m4a')):
-        raise HTTPException(status_code=400, detail="Invalid audio file type.")
+    if not file.filename.lower().endswith(('.mp3', '.wav', '.m4a', '.mp4')):
+        raise HTTPException(status_code=400, detail="Invalid media file type.")
 
     job_id = str(uuid.uuid4())
     input_filename = f"{job_id}_{file.filename}"
@@ -124,7 +124,7 @@ async def start_audio_split(
         output_dir = OUTPUT_DIR / job_id
         output_dir.mkdir(exist_ok=True, parents=True)
         
-        split_files = split_mp3_by_duration(input_path, output_dir, chunk_minutes)
+        split_files = split_media_by_duration(input_path, output_dir, chunk_minutes)
         
         zip_path = OUTPUT_DIR / f"{job_id}_split_audio.zip"
         with zipfile.ZipFile(zip_path, 'w') as zipf:

@@ -21,11 +21,11 @@ function Transcription() {
     const selectedFile = e.target.files[0]
     if (selectedFile) {
       const ext = selectedFile.name.split('.').pop().toLowerCase()
-      if (['mp3', 'wav', 'm4a'].includes(ext)) {
+      if (['mp3', 'wav', 'm4a', 'mp4'].includes(ext)) {
         setFile(selectedFile)
         setError(null)
       } else {
-        setError("Only audio files (.mp3, .wav, .m4a) are supported.")
+        setError("Only media files (.mp3, .wav, .m4a, .mp4) are supported.")
         setFile(null)
       }
     }
@@ -112,7 +112,7 @@ function Transcription() {
                   type="file" 
                   id="audio-input" 
                   className="hidden" 
-                  accept=".mp3,.wav,.m4a"
+                  accept=".mp3,.wav,.m4a,.mp4"
                   onChange={handleFileChange} 
                 />
                 <div className="flex flex-col items-center gap-4">
@@ -121,7 +121,7 @@ function Transcription() {
                   </div>
                   <div>
                     <h3 className="text-lg font-medium">{file ? file.name : "Select Audio File"}</h3>
-                    <p className="text-sm text-gray-500">{file ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` : "Supports .mp3, .wav, .m4a"}</p>
+                    <p className="text-sm text-gray-500">{file ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` : "Supports .mp3, .wav, .m4a, .mp4"}</p>
                   </div>
                 </div>
               </div>
