@@ -98,9 +98,10 @@ def split_media_by_duration(input_file, chunk_minutes=45):
         output_file = f"output_{input_path.stem}_part_{i+1}{input_path.suffix}"
 
         subprocess.run([
-            "ffmpeg", "-i", input_file,
+            "ffmpeg", 
             "-ss", str(start),
             "-t", str(chunk_seconds),
+            "-i", input_file,
             "-c", "copy",
             "-y", output_file
         ])

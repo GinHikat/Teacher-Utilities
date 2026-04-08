@@ -40,10 +40,12 @@ def split_media_by_duration(input_file: Path, output_dir: Path, chunk_minutes=45
         output_file_name = f"{input_file.stem}_part_{i+1}{out_ext}"
         output_file_path = output_dir / output_file_name
 
+        # Fast seeking: Place -ss and -t BEFORE -i for near-instant extraction of large files
         ffmpeg_cmd = [
-            "ffmpeg", "-i", str(input_file),
+            "ffmpeg", 
             "-ss", str(start),
-            "-t", str(chunk_seconds)
+            "-t", str(chunk_seconds),
+            "-i", str(input_file)
         ]
         
         if is_mp3:
