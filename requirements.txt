@@ -9,3 +9,4 @@ python-dotenv
 ffmpeg-python
 mammoth
 pdf2docx
+python-pptx
