@@ -80,7 +80,7 @@ async def start_translation(
 ):
     job_ids = []
     for file in files:
-        if not file.filename.lower().endswith(('.docx', '.pdf')):
+        if not file.filename.lower().endswith(('.docx', '.pdf', '.pptx', '.pptm')):
             continue
 
         job_id = str(uuid.uuid4())
@@ -100,7 +100,7 @@ async def start_translation(
         job_ids.append(job_id)
 
     if not job_ids:
-        raise HTTPException(status_code=400, detail="No valid .docx or .pdf files uploaded.")
+        raise HTTPException(status_code=400, detail="No valid .docx, .pdf, .pptx or .pptm files uploaded.")
 
     return {"job_ids": job_ids}
 

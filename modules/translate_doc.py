@@ -1,6 +1,7 @@
 import os, sys
 from pathlib import Path
 from docx import Document
+from pptx import Presentation
 from deep_translator import GoogleTranslator
 from tqdm import tqdm
 import win32com.client
@@ -46,7 +47,13 @@ def translate_paragraph(paragraph):
         translated = text
 
     if not paragraph.runs:
-        paragraph.add_run(translated)
+        if hasattr(paragraph, "add_run"):
+            # docx style
+            try:
+                paragraph.add_run(translated)
+            except TypeError:
+                # pptx style
+                paragraph.add_run().text = translated
         return
 
     # Clear existing runs but keep structure
@@ -54,6 +61,37 @@ def translate_paragraph(paragraph):
         run.text = ""
 
     paragraph.runs[0].text = translated
+
+def translate_full_presentation(input_path: Path, output_path: Path):
+    """Translate an entire PowerPoint presentation."""
+    if not input_path.exists():
+        print(f"File not found: {input_path}")
+        return
+
+    print(f"\nOpening presentation: {input_path}")
+
+    try:
+        prs = Presentation(str(input_path))
+    except Exception as e:
+        print(f"Cannot open presentation: {e}")
+        return
+
+    # Iterate through slides
+    print(f"Translating {len(prs.slides)} slides...")
+    for slide in prs.slides:
+        for shape in slide.shapes:
+            if shape.has_text_frame:
+                for paragraph in shape.text_frame.paragraphs:
+                    translate_paragraph(paragraph)
+            
+            if shape.has_table:
+                for row in shape.table.rows:
+                    for cell in row.cells:
+                        for paragraph in cell.text_frame.paragraphs:
+                            translate_paragraph(paragraph)
+
+    prs.save(str(output_path))
+    print(f"Saved translated file: {output_path}")
 
 def translate_full_document(input_path: Path, output_path: Path):
     """Translate an entire Word document."""
@@ -96,13 +134,14 @@ def main():
 
     # Find already translated files
     translated_files = {
-        p.stem.replace("_trans", "") for p in target_folder.glob("*_trans.docx")
+        p.stem.replace("_trans", "") 
+        for p in target_folder.glob("*_trans.*")
     }
 
     # Collect input documents
     files = [
         f for f in input_folder.iterdir()
-        if f.is_file() and f.suffix.lower() in [".doc", ".docx"]
+        if f.is_file() and f.suffix.lower() in [".doc", ".docx", ".pptx", ".pptm"]
     ]
 
     for file in tqdm(files, desc="Processing files"):
@@ -117,9 +156,13 @@ def main():
             print(f"Converting {file.name} -> docx")
             input_path = convert_doc_to_docx(file)
 
-        output_file = target_folder / f"{input_path.stem}_trans.docx"
-
-        translate_full_document(input_path, output_file)
+        if input_path.suffix.lower() == ".docx":
+            output_file = target_folder / f"{input_path.stem}_trans.docx"
+            translate_full_document(input_path, output_file)
+        elif input_path.suffix.lower() in [".pptx", ".pptm"]:
+            suffix = input_path.suffix.lower()
+            output_file = target_folder / f"{input_path.stem}_trans{suffix}"
+            translate_full_presentation(input_path, output_file)
 
 
 if __name__ == "__main__":

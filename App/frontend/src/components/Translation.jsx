@@ -104,11 +104,11 @@ function Translation() {
     const selectedFiles = Array.from(e.target.files);
     const validFiles = selectedFiles.filter((f) => {
       const ext = f.name.split(".").pop().toLowerCase();
-      return ["docx", "pdf"].includes(ext);
+      return ["docx", "pdf", "pptx", "pptm"].includes(ext);
     });
 
     if (validFiles.length < selectedFiles.length) {
-      setError("Some files were skipped. Only .docx and .pdf are supported.");
+      setError("Some files were skipped. Only .docx, .pdf, .pptx and .pptm are supported.");
     } else {
       setError(null);
     }
@@ -220,7 +220,7 @@ function Translation() {
                   type="file"
                   id="file-input"
                   className="hidden"
-                  accept=".docx,.pdf"
+                  accept=".docx,.pdf,.pptx,.pptm"
                   multiple
                   onChange={handleFileChange}
                 />
@@ -233,7 +233,7 @@ function Translation() {
                       Select or Drop Files
                     </h3>
                     <p className="text-sm text-gray-500">
-                      Supports multiple .docx and .pdf files
+                      Supports multiple .docx, .pdf, .pptx and .pptm files
                     </p>
                   </div>
                 </div>
@@ -400,13 +400,15 @@ function Translation() {
                         <div className="flex items-center gap-2">
                           {job.status === "completed" && (
                             <>
-                              <button
-                                onClick={() => handlePreview(job.resultFile)}
-                                className="p-2 hover:bg-white/10 rounded-lg text-brand-400 transition-colors"
-                                title="Preview"
-                              >
-                                <Eye size={18} />
-                              </button>
+                              {!job.filename.toLowerCase().endsWith(".pptx") && !job.filename.toLowerCase().endsWith(".pptm") && (
+                                <button
+                                  onClick={() => handlePreview(job.resultFile)}
+                                  className="p-2 hover:bg-white/10 rounded-lg text-brand-400 transition-colors"
+                                  title="Preview"
+                                >
+                                  <Eye size={18} />
+                                </button>
+                              )}
                               <button
                                 onClick={() => handleDownload(job.resultFile)}
                                 className="p-2 hover:bg-white/10 rounded-lg text-brand-400 transition-colors"

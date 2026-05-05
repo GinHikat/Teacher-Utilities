@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from docx import Document
+from pptx import Presentation
 from deep_translator import GoogleTranslator
 try:
     from pdf2docx import Converter
@@ -61,7 +62,13 @@ def translate_paragraph(paragraph, target_lang="en"):
         translated = text
 
     if not paragraph.runs:
-        paragraph.add_run(translated)
+        if hasattr(paragraph, "add_run"):
+            # docx style
+            try:
+                paragraph.add_run(translated)
+            except TypeError:
+                # pptx style
+                paragraph.add_run().text = translated
         return
 
     # Clear existing runs but keep structure
@@ -70,12 +77,62 @@ def translate_paragraph(paragraph, target_lang="en"):
 
     paragraph.runs[0].text = translated
 
+async def translate_full_presentation_async(input_path: Path, output_path: Path, target_lang="en", progress_callback=None):
+    if progress_callback:
+        await progress_callback(0, 1, f"Initializing presentation translation to: {target_lang}")
+
+    try:
+        prs = Presentation(str(input_path))
+    except Exception as e:
+        raise Exception(f"Cannot open presentation: {e}")
+
+    # Count total tasks
+    total_tasks = 0
+    for slide in prs.slides:
+        for shape in slide.shapes:
+            if shape.has_text_frame:
+                total_tasks += len(shape.text_frame.paragraphs)
+            if shape.has_table:
+                for row in shape.table.rows:
+                    for cell in row.cells:
+                        total_tasks += len(cell.text_frame.paragraphs)
+
+    if progress_callback:
+        await progress_callback(0, total_tasks, f"Analyzing presentation: {total_tasks} items found.")
+
+    completed = 0
+    import anyio
+    for slide in prs.slides:
+        for shape in slide.shapes:
+            if shape.has_text_frame:
+                for paragraph in shape.text_frame.paragraphs:
+                    await anyio.to_thread.run_sync(translate_paragraph, paragraph, target_lang)
+                    completed += 1
+                    if progress_callback:
+                        await progress_callback(completed, total_tasks, f"Processing slide text {completed}/{total_tasks}...")
+            
+            if shape.has_table:
+                for row in shape.table.rows:
+                    for cell in row.cells:
+                        for paragraph in cell.text_frame.paragraphs:
+                            await anyio.to_thread.run_sync(translate_paragraph, paragraph, target_lang)
+                            completed += 1
+                            if progress_callback:
+                                await progress_callback(completed, total_tasks, f"Processing table cell {completed}/{total_tasks}...")
+
+    prs.save(str(output_path))
+    return output_path
+
 async def translate_full_document_async(input_path: Path, output_path: Path, target_lang="en", progress_callback=None):
     if progress_callback:
         await progress_callback(0, 1, f"Initializing translation to: {target_lang}")
     
     if not input_path.exists():
         raise FileNotFoundError(f"File not found: {input_path}")
+
+    # For .pptx and .pptm files
+    if input_path.suffix.lower() in [".pptx", ".pptm"]:
+        return await translate_full_presentation_async(input_path, output_path, target_lang, progress_callback)
 
     # For .pdf files
     is_pdf = False
