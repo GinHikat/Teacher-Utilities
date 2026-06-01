@@ -4,7 +4,8 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from "./components/Home";
 import Translation from "./components/Translation";
 import Transcription from "./components/Transcription";
-import { Languages, AudioLines, Home as HomeIcon } from "lucide-react";
+import FormatChanger from "./components/FormatChanger";
+import { Languages, AudioLines, Home as HomeIcon, ArrowRightLeft } from "lucide-react";
 
 // Backend API configuration for Vercel/Render
 axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || "";
@@ -19,7 +20,7 @@ function App() {
             to="/"
             className="flex items-center gap-2 font-bold text-xl group transition-all duration-300"
           >
-            <span className="bg-brand-500 p-2 rounded-lg text-white group-hover:scale-110 group-hover:rotate-6 transition-all ring-4 ring-brand-500/10">
+            <span className="bg-gradient-to-br from-rose-500 to-violet-500 p-2 rounded-lg text-white group-hover:scale-110 group-hover:rotate-6 transition-all ring-4 ring-rose-500/10">
               TU
             </span>
             <span className="gradient-text font-extrabold uppercase tracking-tight">
@@ -45,6 +46,12 @@ function App() {
             >
               <AudioLines size={18} /> Transcribe
             </Link>
+            <Link
+              to="/format-changer"
+              className="text-gray-400 hover:text-white transition-colors flex items-center gap-1.5"
+            >
+              <ArrowRightLeft size={18} /> Convert
+            </Link>
           </div>
         </nav>
 
@@ -54,6 +61,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/translation" element={<Translation />} />
             <Route path="/transcription" element={<Transcription />} />
+            <Route path="/format-changer" element={<FormatChanger />} />
           </Routes>
         </main>
       </div>

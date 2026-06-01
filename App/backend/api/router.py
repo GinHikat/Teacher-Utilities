@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from services.translation import translate_full_document_async
 from services.transcription import split_media_by_duration
+from services.format_converter import convert_file_async
 import zipfile
 
 router = APIRouter()
@@ -70,7 +71,60 @@ async def translate_task(job_id: str, input_path: Path, output_path: Path, targe
     except Exception as e:
         jobs[job_id] = {"status": "failed", "error": str(e), "progress": 0}
 
+async def convert_task(job_id: str, input_path: Path, output_path: Path):
+    try:
+        jobs[job_id]["logs"].append(f"Starting format conversion for: {input_path.name}")
+        jobs[job_id]["logs"].append(f"Converting {input_path.suffix} to {output_path.suffix}...")
+        jobs[job_id]["progress"] = 25
+        
+        await convert_file_async(input_path, output_path)
+        
+        jobs[job_id]["logs"].append("Finalizing file conversion...")
+        jobs[job_id]["progress"] = 90
+        jobs[job_id].update({"status": "completed", "progress": 100, "result_file": output_path.name})
+        jobs[job_id]["logs"].append("✓ Conversion complete. File ready for download.")
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        jobs[job_id] = {"status": "failed", "error": str(e), "progress": 0, "logs": [f"Error: {str(e)}"]}
+
 from typing import List
+
+@router.post("/convert-format")
+async def start_format_conversion(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    target_format: str = Form("docx")
+):
+    # Ensure target_format starts with a dot
+    target_ext = f".{target_format.lower().lstrip('.')}"
+    if target_ext not in ['.md', '.pdf', '.doc', '.docx']:
+        raise HTTPException(status_code=400, detail="Invalid target format. Supported formats: .md, .pdf, .doc, .docx")
+
+    filename = file.filename
+    src_ext = Path(filename).suffix.lower()
+    if src_ext not in ['.md', '.pdf', '.doc', '.docx']:
+        raise HTTPException(status_code=400, detail="Invalid source format. Supported formats: .md, .pdf, .doc, .docx")
+
+    job_id = str(uuid.uuid4())
+    input_filename = f"{job_id}_{filename}"
+    input_path = UPLOAD_DIR / input_filename
+    output_filename = f"converted_{job_id}_{Path(filename).stem}{target_ext}"
+    output_path = OUTPUT_DIR / output_filename
+
+    with open(input_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    jobs[job_id] = {
+        "status": "queued",
+        "progress": 0,
+        "filename": filename,
+        "logs": [f"File uploaded for conversion: {filename}"]
+    }
+    background_tasks.add_task(convert_task, job_id, input_path, output_path)
+    background_tasks.add_task(cleanup_old_files)
+
+    return {"job_id": job_id}
 
 @router.post("/translate")
 async def start_translation(
