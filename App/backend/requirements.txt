@@ -12,3 +12,5 @@ google-cloud-speech
 google-auth
 pywin32; platform_system == 'Windows'
 pdf2docx
+python-pptx
+mammoth
