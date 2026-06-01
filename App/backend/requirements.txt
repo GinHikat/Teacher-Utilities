@@ -14,3 +14,4 @@ pywin32; platform_system == 'Windows'
 pdf2docx
 python-pptx
 mammoth
+pywin32
