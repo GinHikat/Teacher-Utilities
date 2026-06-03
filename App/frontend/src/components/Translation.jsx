@@ -287,8 +287,8 @@ function Translation() {
                     onChange={(e) => setTargetLang(e.target.value)}
                     className="w-full input-field bg-white/5 border-white/10 text-white"
                   >
-                    <option value="en">English (default)</option>
-                    <option value="vi">Vietnamese</option>
+                    <option value="en" className="text-black bg-white">English (default)</option>
+                    <option value="vi" className="text-black bg-white">Vietnamese</option>
                   </select>
                 </div>
               </div>
