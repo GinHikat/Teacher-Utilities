@@ -116,6 +116,33 @@ python -m pytest
 
 ---
 
+## 🔒 Pre-commit & Deployment Checks
+
+To prevent deployment failures on Linux environments (such as Render or Vercel), always run this checklist before staging or committing changes:
+
+1. **Check for Platform-Specific Dependencies**:
+   - Inspect `requirements.txt` and `App/backend/requirements.txt`.
+   - Ensure Windows-only libraries (e.g., `pywin32`) are restricted using platform environment markers:
+     ```text
+     pywin32; platform_system == 'Windows'
+     ```
+
+2. **Verify Cross-Platform Imports**:
+   - Ensure that any Windows-specific imports (`win32com`, `pythoncom`) are imported conditionally inside `try/except` blocks so that importing the module doesn't crash the server on Linux:
+     ```python
+     try:
+         import win32com.client
+         HAS_WORD = True
+     except ImportError:
+         HAS_WORD = False
+     ```
+   - Use `HAS_WORD` guards to disable or throw runtime exceptions only when those Windows features are explicitly executed.
+
+3. **Verify Backend Startup**:
+   - Test run the FastAPI server to ensure there are no import-time failures or unhandled dependency exceptions.
+
+---
+
 ## 📋 Prerequisites
 
 | Requirement              | Version | Notes                                                |
