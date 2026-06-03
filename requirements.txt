@@ -2,7 +2,7 @@ pydub
 deep_translator
 tqdm
 python-docx
-pywin32
+pywin32; platform_system == 'Windows'
 google-cloud-speech
 google-auth
 python-dotenv

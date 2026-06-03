@@ -2,14 +2,20 @@ import os
 import re
 import shutil
 from pathlib import Path
-import pythoncom
-import win32com.client
+try:
+    import pythoncom
+    import win32com.client
+    HAS_WORD = True
+except ImportError:
+    HAS_WORD = False
 from docx import Document
 import mammoth
 from pdf2docx import Converter
 
 def convert_doc_to_docx(input_path: Path, output_path: Path) -> Path:
     """Convert a .doc file to .docx using Microsoft Word."""
+    if not HAS_WORD:
+        raise RuntimeError("Microsoft Word automation (.doc to .docx) is only supported on Windows hosts.")
     pythoncom.CoInitialize()
     try:
         word = win32com.client.Dispatch("Word.Application")
@@ -27,6 +33,8 @@ def convert_doc_to_docx(input_path: Path, output_path: Path) -> Path:
 
 def convert_docx_to_doc(input_path: Path, output_path: Path) -> Path:
     """Convert a .docx file to .doc using Microsoft Word."""
+    if not HAS_WORD:
+        raise RuntimeError("Microsoft Word automation (.docx to .doc) is only supported on Windows hosts.")
     pythoncom.CoInitialize()
     try:
         word = win32com.client.Dispatch("Word.Application")
@@ -44,6 +52,8 @@ def convert_docx_to_doc(input_path: Path, output_path: Path) -> Path:
 
 def convert_docx_to_pdf(input_path: Path, output_path: Path) -> Path:
     """Convert a .docx file to .pdf using Microsoft Word."""
+    if not HAS_WORD:
+        raise RuntimeError("Microsoft Word automation (.docx to .pdf) is only supported on Windows hosts.")
     pythoncom.CoInitialize()
     try:
         word = win32com.client.Dispatch("Word.Application")

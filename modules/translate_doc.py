@@ -4,7 +4,11 @@ from docx import Document
 from pptx import Presentation
 from deep_translator import GoogleTranslator
 from tqdm import tqdm
-import win32com.client
+try:
+    import win32com.client
+    HAS_WORD = True
+except ImportError:
+    HAS_WORD = False
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if project_root not in sys.path:
@@ -24,6 +28,8 @@ def translate_text(text, target_lang="en"):
 
 def convert_doc_to_docx(input_path: Path) -> Path:
     """Convert .doc file to .docx using Microsoft Word."""
+    if not HAS_WORD:
+        raise RuntimeError("Microsoft Word automation is only supported on Windows hosts.")
     word = win32com.client.Dispatch("Word.Application")
     word.Visible = False
 
