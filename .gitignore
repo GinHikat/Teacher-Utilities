@@ -22,3 +22,5 @@ venv/
 env/
 .dev_setup/
 .temp/
+
+.claude/
