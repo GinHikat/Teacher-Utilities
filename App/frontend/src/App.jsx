@@ -1,16 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from "./components/Home";
 import Translation from "./components/Translation";
 import Transcription from "./components/Transcription";
 import FormatChanger from "./components/FormatChanger";
+import StartEngine from "./components/StartEngine";
 import { Languages, AudioLines, Home as HomeIcon, ArrowRightLeft } from "lucide-react";
 
 // Backend API configuration for Vercel/Render
 axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || "";
 
 function App() {
+  const [isEngineStarted, setIsEngineStarted] = useState(false);
+
+  if (!isEngineStarted) {
+    return <StartEngine onEngineStarted={() => setIsEngineStarted(true)} />;
+  }
+
   return (
     <Router>
       <div className="flex flex-col min-h-screen">

@@ -1,7 +1,30 @@
 import React, { useState } from 'react'
 import axios from 'axios'
-import { AudioLines, FileCheck, Loader2, Download, AlertCircle, Trash2, Clock } from 'lucide-react'
+import { AudioLines, FileCheck, Loader2, Download, AlertCircle, Trash2, Clock, Copy, ExternalLink } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+
+const PROMPT_TEXT = `You are a transcription assistant. Your only task is to convert audio files to raw text. You must follow these rules strictly:
+TRANSCRIPTION RULES:
+
+
+Transcribe verbatim — every word, filler word, hesitation, repetition exactly as spoken
+Preserve all Vietnamese text exactly as spoken — do not translate, romanize, or alter any Vietnamese words, names, or phrases
+Do not summarize, paraphrase, analyze, or interpret any content
+Do not add punctuation, formatting, or corrections that were not in the original speech
+Do not skip any portion of the audio, no matter how unclear — write [inaudible] for unclear segments
+Keep speaker labels if multiple speakers are present (e.g., Speaker 1:, Speaker 2:)
+
+
+PROCESSING ORDER — ONE FILE AT A TIME:
+Process each audio file strictly one by one in the order listed. Do not move to the next file until the current one is fully transcribed.
+After completing each file, output a checkpoint like this:
+✅ CHECKPOINT X of Y files done. Continue to file X + 1
+Then immediately begin the next transcription without waiting for confirmation.
+OUTPUT FORMAT for each file (where X is the ordinal number of the file):
+=== FILE X ===
+[raw verbatim transcript here]
+=== END OF FILE X ===
+BEGIN NOW. Start with File 1 and work through all files in order until all are done. Do not stop until all files have a checkpoint marked ✅`;
 
 function Transcription() {
   const [file, setFile] = useState(null)
@@ -216,6 +239,33 @@ function Transcription() {
                 <button onClick={reset} className="btn-secondary px-6">
                   <Trash2 className="text-gray-400" />
                 </button>
+              </div>
+
+              {/* Instructions for NotebookLM */}
+              <div className="w-full mt-2 bg-white/5 border border-white/10 rounded-xl p-6 text-left space-y-4">
+                <h4 className="text-lg font-bold text-purple-400 flex items-center gap-2">
+                  <span>Transcription Instructions</span>
+                </h4>
+                <p className="text-sm text-gray-300 leading-relaxed">
+                  After downloading the zip, unzip the files, paste on to{' '}
+                  <a href="https://notebooklm.google.com/notebook/a9d76894-2bed-484e-ac8d-0aa85dde1cd1?addSource=true" target="_blank" rel="noreferrer" className="text-blue-400 hover:underline inline-flex items-center gap-1 font-semibold">
+                    NotebookLM <ExternalLink size={14} />
+                  </a>
+                  {' '}and Paste the prompt to start transcription:
+                </p>
+                
+                <div className="relative group">
+                  <pre className="bg-black/50 p-4 rounded-lg text-xs text-gray-300 font-mono whitespace-pre-wrap overflow-y-auto max-h-60 border border-white/10 custom-scrollbar">
+                    {PROMPT_TEXT}
+                  </pre>
+                  <button 
+                    onClick={() => navigator.clipboard.writeText(PROMPT_TEXT)}
+                    className="absolute top-2 right-2 p-2 bg-white/10 hover:bg-white/20 rounded-md text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Copy Prompt"
+                  >
+                    <Copy size={16} />
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
