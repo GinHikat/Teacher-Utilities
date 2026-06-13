@@ -59,8 +59,8 @@ function Transcription() {
 
     setIsProcessing(true)
     setStatus('processing')
-    const newLogs = ["Initiating audio splitting request...", `Target chunk size: ${chunkMinutes} minutes`]
-    setLogs(newLogs)
+    const initialLogs = ["Initiating audio splitting request...", `Target chunk size: ${chunkMinutes} minutes`]
+    setLogs(initialLogs)
 
     setStartTime(Date.now())
     const timer = setInterval(() => {
@@ -72,16 +72,41 @@ function Transcription() {
     formData.append('chunk_minutes', chunkMinutes)
 
     try {
-      setLogs(prev => [...prev, "Uploading file to server (this may take time for large files)...", "Awaiting server processing..."])
+      setLogs(prev => [...prev, "Uploading file to server (this may take time for large files)..."])
       
       const res = await axios.post('/api/split-audio', formData);
-      
       setIsBooting(false);
-      setLogs(prev => [...prev, "✓ Server process completed successfully.", `Generated ${res.data.num_chunks} chunks.`, "Preparing download package..."])
-      setJobId(res.data.job_id)
-      setResultFile(res.data.result_file)
-      setNumChunks(res.data.num_chunks)
-      setStatus('completed')
+      const currentJobId = res.data.job_id;
+      setJobId(currentJobId);
+
+      setLogs(prev => [...prev, "✓ File uploaded successfully. Awaiting server processing..."])
+
+      let isDone = false;
+      while (!isDone) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        try {
+          const statusRes = await axios.get(`/api/job-status/${currentJobId}`);
+          const jobData = statusRes.data;
+          
+          if (jobData.logs && jobData.logs.length > 0) {
+            setLogs([...initialLogs, "Uploading file to server (this may take time for large files)...", "✓ File uploaded successfully.", ...jobData.logs]);
+          }
+
+          if (jobData.status === 'completed') {
+            setResultFile(jobData.result_file);
+            setNumChunks(jobData.num_chunks || 0);
+            setStatus('completed');
+            isDone = true;
+          } else if (jobData.status === 'failed') {
+            setError(jobData.error || "Processing failed on server.");
+            setStatus('failed');
+            isDone = true;
+          }
+        } catch (e) {
+          console.error("Error fetching job status:", e);
+        }
+      }
+
     } catch (err) {
       if (!err.response) {
         setIsBooting(true);

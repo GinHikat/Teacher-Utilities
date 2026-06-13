@@ -12,8 +12,8 @@ secrets/*
 files/*
 App/backend/uploads/*
 App/backend/outputs/*
-App/backend/api/__pycache__/
-App/backend/services/__pycache__/
+App/backend/api/__pycache__/*
+App/backend/services/__pycache__/*
 
 __pycache__/
 *.pyc

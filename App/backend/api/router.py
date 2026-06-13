@@ -158,6 +158,42 @@ async def start_translation(
 
     return {"job_ids": job_ids}
 
+import asyncio
+
+async def split_audio_task(job_id: str, input_path: Path, output_dir: Path, zip_path: Path, chunk_minutes: int):
+    try:
+        jobs[job_id]["logs"].append(f"Starting audio split process for: {input_path.name}")
+        jobs[job_id]["progress"] = 10
+        
+        def progress_cb(completed, total, msg):
+            jobs[job_id]["logs"].append(msg)
+            jobs[job_id]["progress"] = 10 + int(70 * (completed / total))
+
+        # Run blocking code in thread
+        split_files = await asyncio.to_thread(split_media_by_duration, input_path, output_dir, chunk_minutes, progress_cb)
+        
+        jobs[job_id]["logs"].append(f"Generated {len(split_files)} chunks. Zipping files...")
+        jobs[job_id]["progress"] = 80
+        
+        def create_zip():
+            with zipfile.ZipFile(zip_path, 'w') as zipf:
+                for f in split_files:
+                    zipf.write(f, arcname=f.name)
+        
+        await asyncio.to_thread(create_zip)
+        
+        jobs[job_id].update({
+            "status": "completed",
+            "progress": 100,
+            "result_file": zip_path.name,
+            "num_chunks": len(split_files)
+        })
+        jobs[job_id]["logs"].append("✓ Split complete. File ready for download.")
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        jobs[job_id] = {"status": "failed", "error": str(e), "progress": 0, "logs": [f"Error: {str(e)}"]}
+
 @router.post("/split-audio")
 async def start_audio_split(
     background_tasks: BackgroundTasks,
@@ -177,30 +213,21 @@ async def start_audio_split(
     with open(input_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    try:
-        output_dir = OUTPUT_DIR / job_id
-        output_dir.mkdir(exist_ok=True, parents=True)
-        
-        split_files = split_media_by_duration(input_path, output_dir, chunk_minutes)
-        
-        zip_path = OUTPUT_DIR / f"{job_id}_split_audio.zip"
-        with zipfile.ZipFile(zip_path, 'w') as zipf:
-            for f in split_files:
-                zipf.write(f, arcname=f.name)
-        
-        background_tasks.add_task(cleanup_old_files)
-        return {
-            "job_id": job_id,
-            "status": "completed",
-            "result_file": zip_path.name,
-            "num_chunks": len(split_files)
-        }
-    except Exception as e:
-        import traceback
-        error_msg = f"Error during audio splitting: {str(e)}"
-        print(error_msg)
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=error_msg)
+    output_dir = OUTPUT_DIR / job_id
+    output_dir.mkdir(exist_ok=True, parents=True)
+    zip_path = OUTPUT_DIR / f"{job_id}_split_audio.zip"
+
+    jobs[job_id] = {
+        "status": "queued",
+        "progress": 0,
+        "filename": file.filename,
+        "logs": [f"File uploaded: {file.filename}"]
+    }
+    
+    background_tasks.add_task(split_audio_task, job_id, input_path, output_dir, zip_path, chunk_minutes)
+    background_tasks.add_task(cleanup_old_files)
+    
+    return {"job_id": job_id}
 
 @router.get("/job-status/{job_id}")
 async def get_job_status(job_id: str):
