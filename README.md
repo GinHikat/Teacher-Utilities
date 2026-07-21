@@ -1,153 +1,148 @@
-# Teacher Utilities
+<div align="center">
 
-An utility application for educators and researchers, providing tools for document translation and audio processing. This project is basically for my Dad lol :v
+# Teacher Utilities: Format-Preserving Translation & Audio Processing Platform
 
----
+<p align="center">
+  <a href="http://localhost:8000/docs"><img src="https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI Backend"></a>
+  <a href="http://localhost:5173"><img src="https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React Frontend"></a>
+  <a href="https://ffmpeg.org"><img src="https://img.shields.io/badge/Audio-FFmpeg-0078D4?style=for-the-badge&logo=ffmpeg&logoColor=white" alt="FFmpeg Audio"></a>
+  <a href="https://github.com/GinHikat/Teacher_Utilities"><img src="https://img.shields.io/badge/Python-3.10%2B-green?style=for-the-badge&logo=python&logoColor=white" alt="Python Version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License"></a>
+</p>
 
-## 📁 Folder Structure
+**A high-performance utility platform for educators, researchers, and content creators—providing format-preserving document translation, automated audio partitioning, and transcription workflows.**
 
-```
-.
-├── backend/                  # FastAPI backend
-│   ├── api/                  # API routes and logic
-│   ├── core/                 # Core configurations
-│   ├── services/             # Translation & Transcription logic
-│   └── requirements.txt      # Python dependencies
-├── frontend/                 # React + Vite frontend
-│   ├── src/                  # React components & logic
-│   ├── package.json          # Node.js dependencies
-│   └── requirements.txt      # Dependency list (as requested)
-├── vercel.json               # Deployment configuration for Vercel
-└── README.md
-```
+</div>
 
 ---
 
-## 🏗️ System Architecture
+## 📢 Key Capabilities & Features
 
-```mermaid
-graph TD;
-    subgraph Frontend ["React Frontend — Port 5173"]
-        UI[React UI]
-        Router_FE[React Router]
-        Framer[Framer Motion Animations]
-        UI --> Router_FE
-        UI --> Framer
-    end
-
-    subgraph Backend ["FastAPI Backend — Port 8000"]
-        Router_BE[API Routes]
-        TransService[Translation Service]
-        SplitService[Audio Split Service]
-        Docx[python-docx]
-        FFmpeg[FFmpeg / FFprobe]
-    
-        Router_BE --> TransService
-        Router_BE --> SplitService
-        TransService --> Docx
-        SplitService --> FFmpeg
-    end
-
-    UI -- REST HTTP requests --> Router_BE
-```
-
-### Components Summary
-
-| Layer                | Technology                    | Role                                              |
-| -------------------- | ----------------------------- | ------------------------------------------------- |
-| **Frontend**   | React + Vite + Tailwind CSS   | Premium UI/UX with glassmorphism and animations   |
-| **Backend**    | FastAPI                       | High-performance REST API                         |
-| **Services**   | python-docx + deep-translator | Document translation with formatting preservation |
-| **Audio**      | FFmpeg / Pydub                | High-speed audio splitting for transcription      |
-| **Deployment** | Vercel                        | Full-stack deployment (Preview & Production)      |
+- 📄 **Format-Preserving Document Translation**: Translates `.docx` and `.doc` files while maintaining structural layout, paragraph styling, and table formatting using `python-docx` and `deep-translator`.
+- 🎙️ **High-Speed Audio Segmentation**: Automatically partitions large lecture and speech recordings into optimized audio chunks using **FFmpeg** and **Pydub** for seamless speech recognition.
+- ⚡ **Cross-Platform Self-Healing Architecture**: Built with conditional platform dependency guards (`pywin32; platform_system == 'Windows'`) ensuring zero import crashes when deployed to Linux environments (Vercel / Render).
+- 🎨 **Modern Glassmorphic React UI**: Designed with React, Vite, Tailwind CSS, and Framer Motion micro-animations for an intuitive educator workbench.
 
 ---
 
-## 🚀 Getting Started
+## 💡 System Architecture
 
-### 1. Set Up the Backend
+```
++--------------------------+     +--------------------------+     +--------------------------+
+|  React + Vite Frontend   | --> |   FastAPI REST Service   | --> | Document & Audio Engines |
+| (Tailwind & Framer Motion)|     | (Uvicorn ASGI Router)    |     | (python-docx / FFmpeg)   |
++--------------------------+     +--------------------------+     +--------------------------+
+```
 
-Navigate to the backend directory and install dependencies:
+### Component Breakdown
+
+| Layer | Technology | Role & Capabilities |
+| --- | --- | --- |
+| **Frontend UI** | React + Vite + Tailwind CSS | Responsive Educator Workbench with glassmorphism aesthetics & real-time progress states |
+| **Backend API** | FastAPI (Python 3.10+) | High-throughput asynchronous REST API endpoints with auto-generated Swagger documentation |
+| **Translation Engine** | `python-docx` + `deep-translator` | Format-preserving document text parsing & multilingual translation |
+| **Audio Processing** | FFmpeg / Pydub | Audio extraction, frequency resampling (16kHz Mono), and chunk splitting |
+| **Deployment** | Vercel / Render | Production serverless ASGI deployment configuration via `vercel.json` |
+
+---
+
+## 📂 Repository Structure
+
+```text
+Teacher_Utilities/
+├── App/                          # Full-Stack Web Application
+│   ├── backend/                  # FastAPI Backend API Service
+│   │   ├── api/                  # REST endpoints & router configuration
+│   │   ├── core/                 # Settings & central configuration
+│   │   ├── services/             # Translation & audio transcription services
+│   │   ├── main.py               # Application deployment entry point
+│   │   └── requirements.txt      # Backend Python dependencies
+│   ├── frontend/                 # React (Vite) UI Frontend
+│   │   ├── src/                  # Components, pages & styling logic
+│   │   └── package.json          # Frontend Node.js dependencies
+│   └── vercel.json               # Serverless deployment configuration
+├── audio/                        # Local audio processing cache
+├── modules/                      # Business logic & helper processing modules
+├── secrets/                      # Local environment credential storage
+├── requirements.txt              # Project dependencies
+└── README.md                     # Project documentation
+```
+
+---
+
+## ⚡ Setup & Quick Start
+
+### Prerequisites
+
+* **Python 3.10+**
+* **Node.js (v18+) & npm**
+* **FFmpeg**: Installed and accessible in your system PATH for audio processing.
+
+---
+
+### 1. Launch Backend API Service
 
 ```bash
-cd backend
+# Navigate to backend directory
+cd App/backend
+
+# Install Python dependencies
 pip install -r requirements.txt
-```
 
-Run the FastAPI server:
-
-```bash
+# Start FastAPI Uvicorn Server
 python main.py
 ```
 
-The API will be available at `http://localhost:8000`. Access interactive documentation at `http://localhost:8000/docs`.
-
-### 2. Set Up the Frontend
-
-Navigate to the frontend directory and install dependencies:
-
-```bash
-cd frontend
-npm install
-```
-
-Run the Vite development server:
-
-```bash
-npm run dev
-```
-
-The app will be available at `http://localhost:5173`.
-
-### 3. Deployment on Vercel
-
-Simply connect your repository to Vercel. The `vercel.json` file at the root will automatically configure the build settings for both the Python backend and the React frontend.
+*The API will be available at `http://localhost:8000` with interactive Swagger docs at `http://localhost:8000/docs`.*
 
 ---
 
-## 🧪 Testing
-
-To test the backend services:
+### 2. Launch Frontend Workbench UI
 
 ```bash
-cd backend
+# Open a new terminal and navigate to frontend directory
+cd App/frontend
+
+# Install Node.js dependencies
+npm install
+
+# Start Vite development server
+npm run dev
+```
+
+*The application UI will run at `http://localhost:5173`.*
+
+---
+
+## 🔒 Cross-Platform & Deployment Guidelines
+
+To prevent deployment failures on Linux environments (Vercel / Render):
+
+1. **Platform Environment Markers**:
+   Restrict Windows-only libraries in `requirements.txt`:
+   ```text
+   pywin32; platform_system == 'Windows'
+   ```
+
+2. **Conditional Win32 Imports**:
+   Wrap Windows COM object calls inside `try/except` guards:
+   ```python
+   try:
+       import win32com.client
+       HAS_WORD = True
+   except ImportError:
+       HAS_WORD = False
+   ```
+
+---
+
+## 🧪 Automated Testing
+
+Run Pytest suite for backend services:
+
+```bash
+cd App/backend
 python -m pytest
 ```
 
 ---
-
-## 🔒 Pre-commit & Deployment Checks
-
-To prevent deployment failures on Linux environments (such as Render or Vercel), always run this checklist before staging or committing changes:
-
-1. **Check for Platform-Specific Dependencies**:
-   - Inspect `requirements.txt` and `App/backend/requirements.txt`.
-   - Ensure Windows-only libraries (e.g., `pywin32`) are restricted using platform environment markers:
-     ```text
-     pywin32; platform_system == 'Windows'
-     ```
-
-2. **Verify Cross-Platform Imports**:
-   - Ensure that any Windows-specific imports (`win32com`, `pythoncom`) are imported conditionally inside `try/except` blocks so that importing the module doesn't crash the server on Linux:
-     ```python
-     try:
-         import win32com.client
-         HAS_WORD = True
-     except ImportError:
-         HAS_WORD = False
-     ```
-   - Use `HAS_WORD` guards to disable or throw runtime exceptions only when those Windows features are explicitly executed.
-
-3. **Verify Backend Startup**:
-   - Test run the FastAPI server to ensure there are no import-time failures or unhandled dependency exceptions.
-
----
-
-## 📋 Prerequisites
-
-| Requirement              | Version | Notes                                                |
-| ------------------------ | ------- | ---------------------------------------------------- |
-| **Python**         | 3.10+   | Required for backend                                 |
-| **Node.js + npm**  | v18+    | Required for frontend                                |
-| **FFmpeg**         | Latest  | Must be installed in system PATH for audio splitting |
-| **Microsoft Word** | -       | Required on Windows for .doc to .docx conversion     |
