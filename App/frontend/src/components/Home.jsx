@@ -11,7 +11,10 @@ import {
   UploadCloud, 
   Cpu, 
   DownloadCloud,
-  FileText
+  Moon,
+  ShieldCheck,
+  Thermometer,
+  SunMedium
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -36,24 +39,26 @@ function Home() {
   const manualContent = {
     translation: {
       title: "Document Translation Guide",
-      icon: <Languages size={24} className="text-brand-400" />,
-      color: "from-brand-500/20 to-transparent",
-      accent: "text-brand-400",
+      icon: <Languages size={24} className="text-amber-300" />,
+      color: "from-amber-500/20 to-transparent",
+      accent: "text-amber-300",
+      borderAccent: "border-amber-500/30",
+      btnBg: "bg-amber-500/15 hover:bg-amber-500/25 text-amber-200 border-amber-400/30",
       steps: [
         {
           title: "Select Document Files",
           desc: "Supports multiple Word (.docx), PDF (.pdf), or PowerPoint (.pptx, .pptm) files in Vietnamese.",
-          icon: <UploadCloud size={20} className="text-brand-400" />
+          icon: <UploadCloud size={20} className="text-amber-300" />
         },
         {
           title: "Select Target Language",
           desc: "Choose English (default) or translate to Vietnamese depending on your source materials.",
-          icon: <Cpu size={20} className="text-brand-400" />
+          icon: <Cpu size={20} className="text-amber-300" />
         },
         {
           title: "Download or Preview",
           desc: "Watch real-time console status logs. Download your translated files or preview Word documents right in the browser.",
-          icon: <DownloadCloud size={20} className="text-brand-400" />
+          icon: <DownloadCloud size={20} className="text-amber-300" />
         }
       ],
       tips: [
@@ -62,25 +67,27 @@ function Home() {
       ]
     },
     audio: {
-      title: "Audio Splitter Guide",
-      icon: <AudioLines size={24} className="text-purple-400" />,
-      color: "from-purple-500/20 to-transparent",
-      accent: "text-purple-400",
+      title: "Audio Partitioning Guide",
+      icon: <AudioLines size={24} className="text-amber-400" />,
+      color: "from-amber-500/20 to-transparent",
+      accent: "text-amber-400",
+      borderAccent: "border-amber-500/30",
+      btnBg: "bg-amber-500/15 hover:bg-amber-500/25 text-amber-200 border-amber-400/30",
       steps: [
         {
           title: "Upload Audio Recording",
           desc: "Choose any large lecture recording or video file (.mp3, .wav, .m4a, or .mp4 format).",
-          icon: <UploadCloud size={20} className="text-purple-400" />
+          icon: <UploadCloud size={20} className="text-amber-400" />
         },
         {
           title: "Configure Chunk Duration",
           desc: "Set the desired segment duration in minutes (e.g., 45 minutes is standard to split large lectures).",
-          icon: <Cpu size={20} className="text-purple-400" />
+          icon: <Cpu size={20} className="text-amber-400" />
         },
         {
           title: "Extract ZIP of Slices",
           desc: "Instantly splits using FFmpeg without audio quality loss, packing the parts into a single ZIP archive.",
-          icon: <DownloadCloud size={20} className="text-purple-400" />
+          icon: <DownloadCloud size={20} className="text-amber-400" />
         }
       ],
       tips: [
@@ -89,25 +96,27 @@ function Home() {
       ]
     },
     converter: {
-      title: "Format Changer Guide",
-      icon: <ArrowRightLeft size={24} className="text-indigo-400" />,
-      color: "from-indigo-500/20 to-transparent",
-      accent: "text-indigo-400",
+      title: "Format Converter Guide",
+      icon: <ArrowRightLeft size={24} className="text-amber-200" />,
+      color: "from-amber-300/20 to-transparent",
+      accent: "text-amber-200",
+      borderAccent: "border-amber-300/30",
+      btnBg: "bg-amber-300/15 hover:bg-amber-300/25 text-amber-100 border-amber-300/30",
       steps: [
         {
           title: "Batch Upload Files",
           desc: "Drag and drop one or more files in Markdown (.md), PDF (.pdf), legacy (.doc), or Word (.docx) formats.",
-          icon: <UploadCloud size={20} className="text-indigo-400" />
+          icon: <UploadCloud size={20} className="text-amber-200" />
         },
         {
           title: "Choose Target Format",
           desc: "Select the desired format you want to compile into: .pdf, .docx, .doc, or .md.",
-          icon: <Cpu size={20} className="text-indigo-400" />
+          icon: <Cpu size={20} className="text-amber-200" />
         },
         {
           title: "Convert and Inspect",
           desc: "Run recursive multi-step conversions (e.g., .md -> .docx -> .pdf). Preview generated Markdown output inside a dark console.",
-          icon: <DownloadCloud size={20} className="text-indigo-400" />
+          icon: <DownloadCloud size={20} className="text-amber-200" />
         }
       ],
       tips: [
@@ -118,69 +127,109 @@ function Home() {
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-center pt-4 pb-12 text-center overflow-visible">
-      {/* Fancy Glowing Decorative Background Blobs */}
-      <div className="absolute -top-12 left-1/4 w-80 h-80 bg-brand-500/10 rounded-full blur-[120px] animate-pulse pointer-events-none" />
-      <div className="absolute top-1/2 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[140px] animate-pulse pointer-events-none" style={{ animationDuration: '6s' }} />
-      <div className="absolute bottom-10 left-10 w-72 h-72 bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none" />
+    <div className="relative flex flex-col items-center justify-center pt-2 pb-12 text-left overflow-visible">
+      {/* Luminance Atmospheric Backdrop Overlay */}
+      <div className="absolute top-0 left-0 right-0 h-[600px] bg-gradient-to-b from-[#0e1424]/40 via-[#070a12]/80 to-[#070a12] rounded-3xl overflow-hidden pointer-events-none -z-10 border border-amber-500/10 shadow-2xl">
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-br from-[#7b9acc]/10 via-[#d4af37]/10 to-transparent rounded-full blur-[140px]" />
+      </div>
 
-      {/* Floating Animated Badge pill */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-6 flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-brand-300 tracking-wider shadow-lg shadow-black/10 hover:border-brand-500/30 transition-all select-none cursor-default"
-      >
-        <Sparkles size={12} className="animate-spin text-brand-400" style={{ animationDuration: '3s' }} />
-        <span>TEACHER UTILITIES V2.0</span>
-      </motion.div>
+      {/* Hero Section */}
+      <div className="w-full max-w-5xl px-4 pt-8 pb-12">
+        <motion.div 
+          initial={{ opacity: 0, y: -15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0a0e1a]/90 border border-amber-500/30 text-xs font-mono font-semibold text-amber-300 tracking-widest uppercase shadow-md select-none"
+        >
+          <Moon size={12} className="text-amber-400 fill-amber-400/20" />
+          <span>TEACHER UTILITIES — EDUCATOR WORKBENCH</span>
+        </motion.div>
 
-      {/* Hero Title */}
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }} 
-        animate={{ opacity: 1, scale: 1 }} 
-        transition={{ duration: 0.6 }}
-        className="mb-14"
-      >
-        <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-6 leading-tight">
-          Supercharge Your <br />
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand-400 via-purple-400 to-indigo-400">
-            Teaching Workflow
-          </span>
-        </h1>
-        <p className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-          Unlock a premium suite of highly optimized tools for document translation, audio splitting, and 
-          multi-format compilation. Simple interfaces, blazing speeds, and gorgeous design.
-        </p>
-      </motion.div>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.98 }} 
+          animate={{ opacity: 1, scale: 1 }} 
+          transition={{ duration: 0.6 }}
+          className="max-w-3xl"
+        >
+          <h1 className="text-5xl md:text-7xl font-serif font-black tracking-tight mb-6 leading-[1.08] text-white">
+            Simplify Teaching. <br />
+            <span className="gradient-bazaar-text font-serif italic">
+              Ease every daily task.
+            </span>
+          </h1>
+          <p className="text-lg md:text-xl text-gray-300 max-w-xl leading-relaxed font-normal mb-8">
+            Teacher Utilities is your high-speed workbench designed to effortlessly streamline document translation, audio partitioning, and format compilation.
+          </p>
+
+          {/* Buttons */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-14">
+            <Link to="/translation" className="btn-bazaar-gold text-base font-semibold px-8 py-3.5">
+              Explore Utilities <ArrowRight size={18} />
+            </Link>
+            <a href="#manual-section" className="btn-bazaar-ghost text-sm font-medium px-6 py-3.5">
+              Learn how it works
+            </a>
+          </div>
+
+          {/* 3 Attribute Columns */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6 border-t border-amber-500/20 max-w-2xl">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-amber-300 font-serif font-semibold text-sm">
+                <ShieldCheck size={16} className="text-amber-400" />
+                <span>Format Integrity</span>
+              </div>
+              <p className="text-xs text-gray-400 leading-relaxed font-mono">
+                Preserves document tables & styles.
+              </p>
+            </div>
+
+            <div className="space-y-1 border-t sm:border-t-0 sm:border-l border-amber-500/20 pt-4 sm:pt-0 sm:pl-6">
+              <div className="flex items-center gap-2 text-amber-300 font-serif font-semibold text-sm">
+                <Thermometer size={16} className="text-amber-400" />
+                <span>Audio Slicing</span>
+              </div>
+              <p className="text-xs text-gray-400 leading-relaxed font-mono">
+                Fast FFmpeg duration splitting.
+              </p>
+            </div>
+
+            <div className="space-y-1 border-t sm:border-t-0 sm:border-l border-amber-500/20 pt-4 sm:pt-0 sm:pl-6">
+              <div className="flex items-center gap-2 text-amber-300 font-serif font-semibold text-sm">
+                <SunMedium size={16} className="text-amber-400" />
+                <span>Instant Previews</span>
+              </div>
+              <p className="text-xs text-gray-400 leading-relaxed font-mono">
+                Live console logs and doc preview.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </div>
 
       {/* Utilities Interactive Grid */}
       <motion.div 
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mb-16"
+        className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mb-16 px-4"
       >
         {/* Document Translation Card */}
         <Link to="/translation" className="group h-full">
           <motion.div 
             variants={item} 
-            whileHover={{ y: -6, scale: 1.01 }}
-            className="glass-card p-8 h-full flex flex-col items-center gap-6 hover:bg-white/10 hover:shadow-2xl hover:shadow-brand-500/10 transition-all duration-300 border-white/5 hover:border-brand-500/40 relative overflow-hidden group"
+            whileHover={{ y: -5 }}
+            className="bazaar-card p-8 h-full flex flex-col items-start gap-6 hover:border-amber-400/50 transition-all duration-300 relative overflow-hidden group"
           >
-            {/* Hover card border glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-brand-500/0 via-brand-500/0 to-brand-500/5 group-hover:to-brand-500/10 transition-all duration-300 pointer-events-none" />
-            
-            <div className="bg-brand-500/10 p-5 rounded-3xl group-hover:scale-110 group-hover:bg-brand-500/20 group-hover:shadow-[0_0_20px_rgba(14,165,233,0.3)] transition-all duration-300">
-              <Languages size={40} className="text-brand-400" />
+            <div className="bg-amber-500/10 p-4 rounded-xl border border-amber-400/30 text-amber-300 group-hover:scale-105 transition-transform">
+              <Languages size={32} />
             </div>
-            <div className="text-left flex flex-col gap-2 flex-grow relative z-10">
-              <h2 className="text-xl font-bold flex items-center justify-between">
+            <div className="flex flex-col gap-2 flex-grow relative z-10">
+              <h2 className="text-xl font-serif font-bold flex items-center justify-between text-white">
                 Document Translation
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-300 text-brand-400" />
+                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-300 text-amber-400" />
               </h2>
-              <p className="text-sm text-gray-400 leading-relaxed">
-                Translate large Word, PDF, or PowerPoint documents between Vietnamese and English. Perfect formatting is natively preserved.
+              <p className="text-xs text-gray-300 leading-relaxed font-normal">
+                Translate Word, PDF, or PowerPoint files between Vietnamese & English while natively preserving document structures and tables.
               </p>
             </div>
           </motion.div>
@@ -190,21 +239,19 @@ function Home() {
         <Link to="/transcription" className="group h-full">
           <motion.div 
             variants={item} 
-            whileHover={{ y: -6, scale: 1.01 }}
-            className="glass-card p-8 h-full flex flex-col items-center gap-6 hover:bg-white/10 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 border-white/5 hover:border-purple-500/40 relative overflow-hidden group"
+            whileHover={{ y: -5 }}
+            className="bazaar-card p-8 h-full flex flex-col items-start gap-6 hover:border-amber-400/50 transition-all duration-300 relative overflow-hidden group"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 via-purple-500/0 to-purple-500/5 group-hover:to-purple-500/10 transition-all duration-300 pointer-events-none" />
-
-            <div className="bg-purple-500/10 p-5 rounded-3xl group-hover:scale-110 group-hover:bg-purple-500/20 group-hover:shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all duration-300">
-              <AudioLines size={40} className="text-purple-400" />
+            <div className="bg-amber-500/10 p-4 rounded-xl border border-amber-400/30 text-amber-400 group-hover:scale-105 transition-transform">
+              <AudioLines size={32} />
             </div>
-            <div className="text-left flex flex-col gap-2 flex-grow relative z-10">
-              <h2 className="text-xl font-bold flex items-center justify-between text-purple-100">
+            <div className="flex flex-col gap-2 flex-grow relative z-10">
+              <h2 className="text-xl font-serif font-bold flex items-center justify-between text-white">
                 Audio Splitter
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-300 text-purple-400" />
+                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-300 text-amber-400" />
               </h2>
-              <p className="text-sm text-gray-400 leading-relaxed">
-                Slice lecture, meeting, or class audio recordings into exact chunks at lightning speed. Optimized for transcription tools.
+              <p className="text-xs text-gray-300 leading-relaxed font-normal">
+                Partition large audio recordings into duration-based segments at lightning speed. Includes 1-click prompt export for NotebookLM.
               </p>
             </div>
           </motion.div>
@@ -214,21 +261,19 @@ function Home() {
         <Link to="/format-changer" className="group h-full">
           <motion.div 
             variants={item} 
-            whileHover={{ y: -6, scale: 1.01 }}
-            className="glass-card p-8 h-full flex flex-col items-center gap-6 hover:bg-white/10 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300 border-white/5 hover:border-indigo-500/40 relative overflow-hidden group"
+            whileHover={{ y: -5 }}
+            className="bazaar-card p-8 h-full flex flex-col items-start gap-6 hover:border-amber-400/50 transition-all duration-300 relative overflow-hidden group"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-indigo-500/0 to-indigo-500/5 group-hover:to-indigo-500/10 transition-all duration-300 pointer-events-none" />
-
-            <div className="bg-indigo-500/10 p-5 rounded-3xl group-hover:scale-110 group-hover:bg-indigo-500/20 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all duration-300">
-              <ArrowRightLeft size={40} className="text-indigo-400" />
+            <div className="bg-amber-500/10 p-4 rounded-xl border border-amber-400/30 text-amber-200 group-hover:scale-105 transition-transform">
+              <ArrowRightLeft size={32} />
             </div>
-            <div className="text-left flex flex-col gap-2 flex-grow relative z-10">
-              <h2 className="text-xl font-bold flex items-center justify-between text-indigo-100">
+            <div className="flex flex-col gap-2 flex-grow relative z-10">
+              <h2 className="text-xl font-serif font-bold flex items-center justify-between text-white">
                 Format Changer
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-300 text-indigo-400" />
+                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-300 text-amber-300" />
               </h2>
-              <p className="text-sm text-gray-400 leading-relaxed">
-                Convert your course resources seamlessly between Markdown, PDF, doc, and docx. Built-in instant console previews.
+              <p className="text-xs text-gray-300 leading-relaxed font-normal">
+                Seamlessly convert teaching materials between Markdown, PDF, doc, and docx. Built-in live dark console text preview.
               </p>
             </div>
           </motion.div>
@@ -237,32 +282,33 @@ function Home() {
 
       {/* Manual tab panel container */}
       <motion.div 
+        id="manual-section"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="w-full max-w-5xl glass-card overflow-hidden text-left shadow-2xl relative border-white/10"
+        className="w-full max-w-5xl bazaar-card overflow-hidden shadow-2xl relative border-amber-500/30 mx-4"
       >
         {/* Top Header section */}
-        <div className="p-6 md:p-8 border-b border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/5">
+        <div className="p-6 md:p-8 border-b border-amber-500/20 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#0a0e1a]">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-cyan-500 to-indigo-500 rounded-lg text-white">
+            <div className="p-2.5 bg-gradient-to-br from-[#e5c678] to-[#c8a34a] rounded-xl text-[#070a12] shadow-md">
               <BookOpen size={20} />
             </div>
             <div>
-              <h3 className="text-xl font-bold tracking-tight text-white">Utility Instruction Manual</h3>
-              <p className="text-xs text-gray-500 mt-0.5">Click the tabs below to explore detailed usage guides and quick tips.</p>
+              <h3 className="text-xl font-serif font-bold tracking-tight text-white">Utility Instruction Manual</h3>
+              <p className="text-xs text-gray-400 mt-0.5">Click the tabs to explore usage guides and pro tips.</p>
             </div>
           </div>
 
           {/* Inline Tab buttons */}
-          <div className="flex bg-black/40 rounded-xl p-1 border border-white/5 self-start md:self-auto">
+          <div className="flex bg-[#070912] rounded-xl p-1.5 border border-amber-500/25 self-start md:self-auto">
             {Object.keys(manualContent).map((tabKey) => (
               <button
                 key={tabKey}
                 onClick={() => setActiveManual(tabKey)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
                   activeManual === tabKey
-                    ? "bg-white/10 text-white shadow-md shadow-black/10 border border-white/5"
+                    ? "bg-amber-500/20 text-amber-300 shadow-md border border-amber-400/40"
                     : "text-gray-400 hover:text-gray-200"
                 }`}
               >
@@ -276,7 +322,7 @@ function Home() {
         </div>
 
         {/* Tab content wrapper */}
-        <div className="p-6 md:p-8">
+        <div className="p-6 md:p-8 bg-[#111625]">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeManual}
@@ -290,12 +336,12 @@ function Home() {
               <div className="lg:col-span-2 space-y-6">
                 <div className="flex items-center gap-3">
                   {manualContent[activeManual].icon}
-                  <h4 className="text-xl font-bold text-white">{manualContent[activeManual].title}</h4>
+                  <h4 className="text-xl font-serif font-bold text-white">{manualContent[activeManual].title}</h4>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {manualContent[activeManual].steps.map((step, idx) => (
-                    <div key={idx} className="p-4 bg-white/5 rounded-xl border border-white/5 flex flex-col gap-3">
+                    <div key={idx} className="p-4 bg-[#0a0e1a] rounded-xl border border-amber-500/20 flex flex-col gap-3">
                       <div className="flex items-center gap-2.5">
                         <span className={`w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs font-mono font-bold ${manualContent[activeManual].accent}`}>
                           0{idx + 1}
@@ -306,7 +352,7 @@ function Home() {
                       </div>
                       <div className="space-y-1">
                         <h5 className="text-sm font-semibold text-white">{step.title}</h5>
-                        <p className="text-xs text-gray-400 leading-relaxed">{step.desc}</p>
+                        <p className="text-xs text-gray-300 leading-relaxed">{step.desc}</p>
                       </div>
                     </div>
                   ))}
@@ -314,9 +360,9 @@ function Home() {
               </div>
 
               {/* Right col: Pro tips panel */}
-              <div className="p-6 rounded-2xl bg-gradient-to-b from-white/5 to-white/0 border border-white/5 flex flex-col justify-between">
+              <div className="p-6 rounded-2xl bg-[#0a0e1a] border border-amber-500/20 flex flex-col justify-between">
                 <div className="space-y-4">
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
+                  <h4 className="text-xs font-mono font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
                     <Sparkles size={12} className={manualContent[activeManual].accent} />
                     Expert Pro Tips
                   </h4>
@@ -332,13 +378,7 @@ function Home() {
                 
                 <Link 
                   to={activeManual === 'translation' ? '/translation' : activeManual === 'audio' ? '/transcription' : '/format-changer'}
-                  className={`mt-6 inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-xs font-bold border transition-all ${
-                    activeManual === 'translation' 
-                      ? 'bg-brand-500/10 hover:bg-brand-500/20 text-brand-300 border-brand-500/20 hover:border-brand-500/40' 
-                      : activeManual === 'audio'
-                        ? 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border-purple-500/20 hover:border-purple-500/40'
-                        : 'bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border-indigo-500/20 hover:border-indigo-500/40'
-                  }`}
+                  className={`mt-6 inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-xs font-bold border transition-all ${manualContent[activeManual].btnBg}`}
                 >
                   Open This Utility
                   <ArrowRight size={14} />

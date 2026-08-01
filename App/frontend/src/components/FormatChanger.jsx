@@ -44,7 +44,6 @@ function FormatChanger() {
 
         const updatedJobs = { ...jobs };
         let allDone = true;
-        let bootingFound = false;
 
         for (const jobId of Object.keys(jobs)) {
           if (
@@ -79,7 +78,6 @@ function FormatChanger() {
           } catch (err) {
             if (err.message === "timeout" || !err.response) {
               setIsBooting(true);
-              bootingFound = true;
             }
             console.error(`Error polling status for ${jobId}`, err);
             allDone = false;
@@ -129,7 +127,6 @@ function FormatChanger() {
     const activeJobs = {};
 
     try {
-      // Loop and submit each file as a separate conversion job
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const formData = new FormData();
@@ -193,17 +190,19 @@ function FormatChanger() {
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">
-      <div className="glass-card overflow-hidden">
-        <div className="p-8 border-b border-white/5 bg-gradient-to-r from-purple-500/10 to-transparent">
-          <h2 className="text-3xl font-bold flex items-center gap-3">
-            <div className="p-2 bg-purple-500/10 rounded-xl text-purple-400">
-              <ArrowRightLeft size={32} />
-            </div>
-            File Format Changer
-          </h2>
-          <p className="text-gray-400 mt-2">
-            Convert documents seamlessly between .docx, .doc, .pdf, and .md formats.
-          </p>
+      <div className="bazaar-card overflow-hidden border-amber-500/30">
+        <div className="p-8 border-b border-amber-500/20 bg-gradient-to-r from-[#d4af37]/15 to-transparent flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-serif font-bold flex items-center gap-3 text-white">
+              <div className="p-2.5 bg-amber-500/10 rounded-xl border border-amber-400/30 text-amber-300">
+                <ArrowRightLeft size={28} />
+              </div>
+              File Format Changer
+            </h2>
+            <p className="text-gray-300 mt-2 text-sm">
+              Convert document formats seamlessly between .docx, .doc, .pdf, and .md.
+            </p>
+          </div>
         </div>
 
         <div className="p-8 space-y-8">
@@ -214,7 +213,7 @@ function FormatChanger() {
               className="space-y-6"
             >
               <div
-                className="border-2 border-dashed border-white/10 rounded-2xl p-10 text-center transition-all cursor-pointer hover:border-purple-500/50 hover:bg-purple-500/5"
+                className="border-2 border-dashed border-amber-500/25 rounded-2xl p-10 text-center transition-all cursor-pointer hover:border-amber-400/60 hover:bg-[#d4af37]/5"
                 onClick={() => document.getElementById("converter-file-input").click()}
               >
                 <input
@@ -226,14 +225,14 @@ function FormatChanger() {
                   onChange={handleFileChange}
                 />
                 <div className="flex flex-col items-center gap-4">
-                  <div className="p-4 rounded-full bg-white/5 text-gray-400">
+                  <div className="p-4 rounded-2xl bg-white/5 border border-amber-500/20 text-amber-300 shadow-md">
                     <FileUp size={32} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium tracking-tight">
+                    <h3 className="text-lg font-serif font-bold text-white tracking-tight">
                       Select or Drop Files to Convert
                     </h3>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-xs text-gray-400 mt-1 font-mono">
                       Supports .docx, .doc, .pdf, and .md files
                     </p>
                   </div>
@@ -242,24 +241,24 @@ function FormatChanger() {
 
               {files.length > 0 && (
                 <div className="space-y-3">
-                  <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-widest">
+                  <h4 className="text-xs font-mono font-bold text-amber-300/80 uppercase tracking-widest">
                     Selected Files ({files.length})
                   </h4>
                   <div className="max-h-60 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
                     {files.map((f, i) => (
                       <div
                         key={i}
-                        className="flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-xl group hover:border-white/10 transition-colors"
+                        className="flex items-center justify-between p-3 bg-[#0a0e1a] border border-amber-500/20 rounded-xl group hover:border-amber-400/40 transition-colors"
                       >
                         <div className="flex items-center gap-3 truncate">
                           <FileCheck
                             size={18}
-                            className="text-purple-400 flex-shrink-0"
+                            className="text-amber-300 flex-shrink-0"
                           />
-                          <span className="text-sm font-medium truncate">
+                          <span className="text-sm font-medium truncate text-gray-200">
                             {f.name}
                           </span>
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs font-mono text-gray-400">
                             {(f.size / 1024).toFixed(1)} KB
                           </span>
                         </div>
@@ -268,7 +267,7 @@ function FormatChanger() {
                             e.stopPropagation();
                             removeFile(i);
                           }}
-                          className="p-1 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                          className="p-1 hover:text-rose-400 transition-colors opacity-0 group-hover:opacity-100"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -279,8 +278,8 @@ function FormatChanger() {
               )}
 
               <div className="space-y-3">
-                <label className="text-sm font-medium text-gray-400 uppercase tracking-wider block">
-                  Convert to Target Format
+                <label className="text-xs font-mono font-bold text-gray-300 uppercase tracking-wider block">
+                  Target Output Format
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {["pdf", "docx", "doc", "md"].map((format) => (
@@ -288,14 +287,14 @@ function FormatChanger() {
                       key={format}
                       type="button"
                       onClick={() => setTargetFormat(format)}
-                      className={`p-4 rounded-xl border flex flex-col items-center justify-center gap-2 font-bold uppercase transition-all duration-300 ${
+                      className={`p-4 rounded-2xl border flex flex-col items-center justify-center gap-1 font-bold uppercase transition-all duration-300 ${
                         targetFormat === format
-                          ? "bg-purple-600/20 border-purple-500 text-purple-300 shadow-lg shadow-purple-500/10"
-                          : "bg-white/5 border-white/5 hover:border-white/20 text-gray-400"
+                          ? "bg-gradient-to-br from-[#d4af37]/25 to-[#e5c158]/15 border-amber-400 text-amber-300 shadow-lg shadow-amber-500/15"
+                          : "bg-white/5 border-white/10 hover:border-white/20 text-gray-400"
                       }`}
                     >
-                      <span className="text-xs font-medium text-gray-500">FORMAT</span>
-                      <span className="text-lg">.{format}</span>
+                      <span className="text-[10px] font-mono font-semibold text-gray-400">FORMAT</span>
+                      <span className="text-xl tracking-wide font-mono">.{format}</span>
                     </button>
                   ))}
                 </div>
@@ -306,7 +305,7 @@ function FormatChanger() {
                 disabled={files.length === 0}
                 className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
                   files.length > 0
-                    ? "btn-primary bg-purple-600 hover:bg-purple-500 shadow-purple-500/20 hover:shadow-purple-500/40 border border-purple-500/30"
+                    ? "btn-bazaar-gold"
                     : "bg-white/5 text-gray-500 cursor-not-allowed border border-white/5"
                 }`}
               >
@@ -326,16 +325,16 @@ function FormatChanger() {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-2xl font-bold">
+                    <h3 className="text-2xl font-serif font-bold text-white">
                       {status === "processing"
                         ? "Converting Files..."
                         : status === "completed"
-                          ? "Conversion Finished!"
-                          : "Uploading..."}
+                          ? "Conversion Completed!"
+                          : "Uploading Files..."}
                     </h3>
                     {Object.keys(jobs).length > 0 && (
                       <div className="flex flex-col gap-1 mt-1">
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-gray-300">
                           Processed:{" "}
                           {
                             Object.values(jobs).filter(
@@ -346,7 +345,7 @@ function FormatChanger() {
                           }{" "}
                           / {Object.keys(jobs).length} files
                         </p>
-                        <div className="flex items-center gap-2 text-xs font-mono text-purple-400">
+                        <div className="flex items-center gap-2 text-xs font-mono text-amber-300">
                           <Loader2 size={12} className="animate-spin" />
                           <span>Elapsed: {elapsedTime}s</span>
                         </div>
@@ -356,7 +355,7 @@ function FormatChanger() {
                   {status === "completed" && (
                     <button
                       onClick={reset}
-                      className="text-sm font-medium text-purple-400 hover:text-purple-300"
+                      className="text-sm font-bold text-amber-400 hover:text-amber-300 underline underline-offset-4"
                     >
                       Convert More Files
                     </button>
@@ -367,7 +366,7 @@ function FormatChanger() {
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
-                    className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-3 text-amber-500 text-sm"
+                    className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center gap-3 text-amber-300 text-sm"
                   >
                     <Loader2 className="animate-spin" size={18} />
                     <p>
@@ -377,7 +376,7 @@ function FormatChanger() {
                 )}
 
                 {Object.keys(jobs).length > 0 && (
-                  <div className="w-full bg-white/5 h-3 rounded-full overflow-hidden border border-white/5">
+                  <div className="w-full bg-black/50 h-3 rounded-full overflow-hidden border border-amber-500/20">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{
@@ -390,7 +389,7 @@ function FormatChanger() {
                           100
                         }%`,
                       }}
-                      className="h-full bg-gradient-to-r from-purple-600 to-indigo-400 shadow-[0_0_15px_rgba(139,92,246,0.4)]"
+                      className="h-full bg-gradient-to-r from-[#d4af37] to-[#e5c158] shadow-[0_0_15px_rgba(212,175,55,0.5)]"
                     />
                   </div>
                 )}
@@ -399,19 +398,19 @@ function FormatChanger() {
                   {Object.entries(jobs).map(([id, job]) => (
                     <div
                       key={id}
-                      className="p-4 bg-white/5 rounded-2xl border border-white/5 space-y-3"
+                      className="p-4 bg-[#0a0e1a] rounded-2xl border border-amber-500/20 space-y-3"
                     >
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3 truncate">
                           {job.status === "completed" ? (
-                            <FileCheck className="text-green-500" size={20} />
+                            <FileCheck className="text-emerald-400" size={20} />
                           ) : (
                             <Loader2
-                              className="animate-spin text-purple-400"
+                              className="animate-spin text-amber-400"
                               size={20}
                             />
                           )}
-                          <span className="font-medium truncate">
+                          <span className="font-medium truncate text-white">
                             {job.filename}
                           </span>
                         </div>
@@ -421,15 +420,15 @@ function FormatChanger() {
                               {job.resultFile?.toLowerCase().endsWith(".md") && (
                                 <button
                                   onClick={() => handlePreview(job.resultFile)}
-                                  className="p-2 hover:bg-white/10 rounded-lg text-purple-400 transition-colors"
-                                  title="Preview Content"
+                                  className="p-2 hover:bg-white/10 rounded-lg text-amber-300 transition-colors"
+                                  title="Preview Markdown Content"
                                 >
                                   <Eye size={18} />
                                 </button>
                               )}
                               <button
                                 onClick={() => handleDownload(job.resultFile)}
-                                className="p-2 hover:bg-white/10 rounded-lg text-purple-400 transition-colors"
+                                className="p-2 hover:bg-white/10 rounded-lg text-amber-300 transition-colors"
                                 title="Download File"
                               >
                                 <Download size={18} />
@@ -437,12 +436,12 @@ function FormatChanger() {
                             </>
                           )}
                           <span
-                            className={`text-xs px-2 py-1 rounded-full ${
+                            className={`text-xs px-2.5 py-1 rounded-full font-bold font-mono ${
                               job.status === "completed"
-                                ? "bg-green-500/10 text-green-500"
+                                ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
                                 : job.status === "failed"
-                                  ? "bg-red-500/10 text-red-500"
-                                  : "bg-purple-500/10 text-purple-400"
+                                  ? "bg-rose-500/15 text-rose-400 border border-rose-500/30"
+                                  : "bg-amber-500/15 text-amber-300 border border-amber-500/30"
                             }`}
                           >
                             {job.status.charAt(0).toUpperCase() +
@@ -452,23 +451,23 @@ function FormatChanger() {
                       </div>
 
                       <div className="space-y-1">
-                        <div className="flex justify-between text-[10px] font-bold text-gray-500 uppercase tracking-tighter">
+                        <div className="flex justify-between text-[10px] font-bold text-gray-400 uppercase tracking-tighter font-mono">
                           <span>Status</span>
                           <span>{Math.round(job.progress)}%</span>
                         </div>
-                        <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                        <div className="w-full bg-black/40 h-2 rounded-full overflow-hidden">
                           <motion.div
                             animate={{ width: `${job.progress}%` }}
                             className={`h-full transition-all duration-500 ${
                               job.status === "completed"
-                                ? "bg-green-500"
-                                : "bg-purple-500 shadow-[0_0_8px_rgba(139,92,246,0.3)]"
+                                ? "bg-emerald-400"
+                                : "bg-gradient-to-r from-[#d4af37] to-[#e5c158] shadow-[0_0_8px_rgba(212,175,55,0.4)]"
                             }`}
                           />
                         </div>
                       </div>
                       {job.error && (
-                        <p className="text-xs text-red-500 mt-1">{job.error}</p>
+                        <p className="text-xs text-rose-400 mt-1">{job.error}</p>
                       )}
 
                       {/* Console Logs */}
@@ -476,21 +475,21 @@ function FormatChanger() {
                         job.status === "completed" ||
                         job.status === "failed") &&
                         job.logs && (
-                          <div className="mt-4 bg-black/40 rounded-lg p-3 border border-white/5 font-mono text-[10px] leading-relaxed overflow-hidden">
-                            <div className="flex items-center gap-2 mb-2 border-b border-white/5 pb-1">
-                              <div className="flex gap-1">
-                                <div className="w-1.5 h-1.5 rounded-full bg-red-500/50" />
-                                <div className="w-1.5 h-1.5 rounded-full bg-amber-500/50" />
-                                <div className="w-1.5 h-1.5 rounded-full bg-green-500/50" />
+                          <div className="mt-4 bg-[#080b14] rounded-xl p-3 border border-amber-500/20 font-mono text-[11px] leading-relaxed overflow-hidden">
+                            <div className="flex items-center gap-2 mb-2 border-b border-amber-500/15 pb-1.5">
+                              <div className="flex gap-1.5">
+                                <div className="w-2 h-2 rounded-full bg-rose-500/70" />
+                                <div className="w-2 h-2 rounded-full bg-amber-500/70" />
+                                <div className="w-2 h-2 rounded-full bg-emerald-500/70" />
                               </div>
-                              <span className="text-[8px] text-gray-500 uppercase tracking-widest">
-                                Conversion Console
+                              <span className="text-[9px] text-gray-400 uppercase tracking-widest font-semibold">
+                                Format Converter Console
                               </span>
                             </div>
                             <div className="max-h-32 overflow-y-auto custom-scrollbar space-y-1">
                               {job.logs.map((log, li) => (
                                 <div key={li} className="flex gap-2">
-                                  <span className="text-purple-500/50 select-none">
+                                  <span className="text-amber-400 select-none">
                                     ›
                                   </span>
                                   <span className="text-gray-300">{log}</span>
@@ -498,10 +497,10 @@ function FormatChanger() {
                               ))}
                               {job.status === "processing" && (
                                 <div className="flex gap-2 animate-pulse">
-                                  <span className="text-purple-400 select-none">
+                                  <span className="text-amber-400 select-none">
                                     ›
                                   </span>
-                                  <span className="text-purple-400/50">_</span>
+                                  <span className="text-amber-400/50">_</span>
                                 </div>
                               )}
                             </div>
@@ -519,18 +518,18 @@ function FormatChanger() {
               animate={{ opacity: 1 }}
               className="py-12 flex flex-col items-center gap-6"
             >
-              <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center border border-red-500/20">
-                <AlertCircle size={32} className="text-red-500" />
+              <div className="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center border border-rose-500/30">
+                <AlertCircle size={32} className="text-rose-400" />
               </div>
               <div className="text-center space-y-2">
-                <h3 className="text-xl font-bold text-red-500">
+                <h3 className="text-xl font-bold text-rose-400">
                   Conversion Process Failed
                 </h3>
-                <p className="text-gray-400">
+                <p className="text-gray-300">
                   {error || "Something went wrong during format changing."}
                 </p>
               </div>
-              <button onClick={reset} className="btn-secondary">
+              <button onClick={reset} className="btn-bazaar-ghost">
                 Try Again
               </button>
             </motion.div>
@@ -545,27 +544,27 @@ function FormatChanger() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
           >
             <motion.div
               initial={{ y: 50, scale: 0.9 }}
               animate={{ y: 0, scale: 1 }}
               exit={{ y: 50, scale: 0.9 }}
-              className="glass-card w-full max-w-4xl h-[80vh] flex flex-col overflow-hidden"
+              className="bazaar-card w-full max-w-4xl h-[80vh] flex flex-col overflow-hidden border-amber-400/40"
             >
-              <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/5">
-                <h3 className="text-xl font-bold text-purple-400 flex items-center gap-2">
+              <div className="p-4 border-b border-amber-500/20 flex items-center justify-between bg-[#0a0e1a]">
+                <h3 className="text-xl font-serif font-bold text-amber-300 flex items-center gap-2">
                   <FileText size={20} />
-                  Markdown File Preview
+                  Markdown Content Preview
                 </h3>
                 <button
                   onClick={() => setShowPreview(false)}
-                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
                 >
                   <X />
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto p-8 bg-zinc-950 font-mono text-sm text-gray-300 leading-relaxed custom-scrollbar whitespace-pre-wrap select-text">
+              <div className="flex-1 overflow-y-auto p-8 bg-[#080b14] font-mono text-sm text-gray-200 leading-relaxed custom-scrollbar whitespace-pre-wrap select-text">
                 {previewText || "No text content found."}
               </div>
             </motion.div>
@@ -579,9 +578,9 @@ function FormatChanger() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="mt-6 p-4 glass-card border-red-500/20 bg-red-500/5 text-red-100 flex items-center gap-3"
+            className="mt-6 p-4 bazaar-card border-rose-500/30 bg-rose-500/10 text-rose-200 flex items-center gap-3"
           >
-            <AlertCircle className="text-red-400" />
+            <AlertCircle className="text-rose-400" />
             <span className="text-sm font-medium">{error}</span>
           </motion.div>
         )}

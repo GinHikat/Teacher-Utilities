@@ -39,6 +39,7 @@ function Transcription() {
   const [startTime, setStartTime] = useState(null)
   const [isBooting, setIsBooting] = useState(false)
   const [logs, setLogs] = useState([])
+  const [copied, setCopied] = useState(false)
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0]
@@ -89,7 +90,7 @@ function Transcription() {
           const jobData = statusRes.data;
           
           if (jobData.logs && jobData.logs.length > 0) {
-            setLogs([...initialLogs, "Uploading file to server (this may take time for large files)...", "✓ File uploaded successfully.", ...jobData.logs]);
+            setLogs([...initialLogs, "Uploading file to server...", "✓ File uploaded successfully.", ...jobData.logs]);
           }
 
           if (jobData.status === 'completed') {
@@ -126,6 +127,12 @@ function Transcription() {
     }
   }
 
+  const copyPrompt = () => {
+    navigator.clipboard.writeText(PROMPT_TEXT)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   const reset = () => {
     setFile(null)
     setJobId(null)
@@ -135,16 +142,18 @@ function Transcription() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto py-8">
-      <div className="glass-card overflow-hidden">
-        <div className="p-8 border-b border-white/5 bg-gradient-to-r from-purple-500/10 to-transparent">
-          <h2 className="text-3xl font-bold flex items-center gap-3">
-            <div className="p-2 transition-transform transform group-hover:scale-110">
-              <AudioLines className="text-purple-400" />
-            </div>
-            Audio Transcription (Splitting)
-          </h2>
-          <p className="text-gray-400 mt-2">Split large audio files into smaller duration-based chunks for easier processing.</p>
+    <div className="max-w-3xl mx-auto py-8 px-4">
+      <div className="bazaar-card overflow-hidden border-amber-500/30">
+        <div className="p-8 border-b border-amber-500/20 bg-gradient-to-r from-[#d4af37]/15 to-transparent flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-serif font-bold flex items-center gap-3 text-white">
+              <div className="p-2.5 bg-amber-500/10 rounded-xl border border-amber-400/30 text-amber-300">
+                <AudioLines size={28} />
+              </div>
+              Audio Partitioning & Transcription
+            </h2>
+            <p className="text-gray-300 mt-2 text-sm">Split large audio files into duration-based chunks for NotebookLM speech recognition.</p>
+          </div>
         </div>
 
         <div className="p-8 space-y-8">
@@ -152,7 +161,7 @@ function Transcription() {
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
               {/* File Dropzone */}
               <div 
-                className={`border-2 border-dashed rounded-2xl p-12 text-center transition-all cursor-pointer hover:border-purple-500/50 hover:bg-purple-500/5 ${file ? 'border-purple-500 bg-purple-500/5' : 'border-white/10'}`}
+                className={`border-2 border-dashed rounded-2xl p-10 text-center transition-all cursor-pointer hover:border-amber-400/60 hover:bg-[#d4af37]/5 ${file ? 'border-amber-400 bg-[#d4af37]/10' : 'border-amber-500/25'}`}
                 onClick={() => document.getElementById('audio-input').click()}
               >
                 <input 
@@ -163,27 +172,27 @@ function Transcription() {
                   onChange={handleFileChange} 
                 />
                 <div className="flex flex-col items-center gap-4">
-                  <div className={`p-4 rounded-full ${file ? 'bg-purple-500 text-white' : 'bg-white/5 text-gray-400'}`}>
+                  <div className={`p-4 rounded-2xl ${file ? 'bg-gradient-to-r from-[#d4af37] to-[#e5c158] text-[#070a12] shadow-lg shadow-amber-500/30' : 'bg-white/5 text-gray-400 border border-white/10'}`}>
                     {file ? <FileCheck size={32} /> : <AudioLines size={32} />}
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium">{file ? file.name : "Select Audio File"}</h3>
-                    <p className="text-sm text-gray-500">{file ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` : "Supports .mp3, .wav, .m4a, .mp4"}</p>
+                    <h3 className="text-lg font-serif font-bold text-white">{file ? file.name : "Select or Drop Audio File"}</h3>
+                    <p className="text-xs text-gray-400 mt-1 font-mono">{file ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` : "Supports .mp3, .wav, .m4a, .mp4"}</p>
                   </div>
                 </div>
               </div>
 
               {/* Options */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                    <Clock size={16} /> Chunk Duration (min)
+                  <label className="text-xs font-mono font-bold text-gray-300 uppercase tracking-wider flex items-center gap-2">
+                    <Clock size={16} className="text-amber-400" /> Chunk Duration (Minutes)
                   </label>
                   <input 
                     type="number" 
                     value={chunkMinutes} 
                     onChange={(e) => setChunkMinutes(e.target.value)}
-                    className="w-full input-field border-white/10 text-white"
+                    className="w-full input-bazaar bg-[#080b14] border-amber-500/30 text-white"
                     placeholder="e.g., 45"
                   />
                 </div>
@@ -192,9 +201,9 @@ function Transcription() {
               <button 
                 onClick={handleUpload} 
                 disabled={!file}
-                className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${file ? 'btn-primary bg-purple-600 hover:bg-purple-500 shadow-purple-500/20 hover:shadow-purple-500/40' : 'bg-white/5 text-gray-500 cursor-not-allowed border border-white/5'}`}
+                className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${file ? 'btn-bazaar-gold' : 'bg-white/5 text-gray-500 cursor-not-allowed border border-white/5'}`}
               >
-                Start Splitting
+                Start Audio Partitioning
               </button>
             </motion.div>
           )}
@@ -202,93 +211,93 @@ function Transcription() {
           {status === 'processing' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-12 flex flex-col items-center gap-8">
               <div className="relative">
-                 <Loader2 className="animate-spin text-purple-500" size={80} strokeWidth={1.5} />
+                 <Loader2 className="animate-spin text-amber-400" size={72} strokeWidth={1.5} />
               </div>
-              <div className="text-center space-y-4">
-                <div className="space-y-2">
-                   <h3 className="text-2xl font-bold">Processing Audio...</h3>
-                   <p className="text-gray-400 text-purple-200/60 font-mono text-sm">Elapsed Time: {elapsedTime}s</p>
+              <div className="text-center space-y-4 w-full">
+                <div className="space-y-1">
+                   <h3 className="text-2xl font-serif font-bold text-white">Partitioning Audio Tracks...</h3>
+                   <p className="text-gray-400 font-mono text-xs">Elapsed Time: {elapsedTime}s</p>
                 </div>
                 {isBooting && (
-                  <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-3 text-amber-500 text-sm max-w-sm mx-auto">
+                  <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center gap-3 text-amber-300 text-sm max-w-sm mx-auto">
                       <Loader2 className="animate-spin" size={18} />
-                      <p>Server is booting up (cold start from Render), this might take about 1 minute. Please wait...</p>
+                      <p>Server is booting up (cold start from Render), please wait...</p>
                   </motion.div>
                 )}
 
                 {/* Terminal Log View */}
                 {logs.length > 0 && (
-                    <div className="w-full max-w-sm mx-auto bg-black/40 rounded-lg p-3 border border-white/5 font-mono text-[10px] leading-relaxed overflow-hidden text-left">
-                        <div className="flex items-center gap-2 mb-2 border-b border-white/5 pb-1">
-                            <div className="flex gap-1">
-                                <div className="w-1.5 h-1.5 rounded-full bg-red-500/50" />
-                                <div className="w-1.5 h-1.5 rounded-full bg-amber-500/50" />
-                                <div className="w-1.5 h-1.5 rounded-full bg-green-500/50" />
+                    <div className="w-full max-w-md mx-auto bg-[#080b14] rounded-xl p-3 border border-amber-500/20 font-mono text-[11px] leading-relaxed overflow-hidden text-left">
+                        <div className="flex items-center gap-2 mb-2 border-b border-amber-500/15 pb-1.5">
+                            <div className="flex gap-1.5">
+                                <div className="w-2 h-2 rounded-full bg-rose-500/70" />
+                                <div className="w-2 h-2 rounded-full bg-amber-500/70" />
+                                <div className="w-2 h-2 rounded-full bg-emerald-500/70" />
                             </div>
-                            <span className="text-[8px] text-gray-500 uppercase tracking-widest leading-none">Transcription Console</span>
+                            <span className="text-[9px] text-gray-400 uppercase tracking-widest leading-none font-semibold">Audio Processing Console</span>
                         </div>
                         <div className="max-h-32 overflow-y-auto custom-scrollbar space-y-1">
                             {logs.map((log, li) => (
                                 <div key={li} className="flex gap-2">
-                                    <span className="text-purple-500/50 select-none">›</span>
+                                    <span className="text-amber-400 select-none">›</span>
                                     <span className="text-gray-300">{log}</span>
                                 </div>
                             ))}
                             {status === 'processing' && (
                                 <div className="flex gap-2 animate-pulse">
-                                    <span className="text-purple-400 select-none">›</span>
-                                    <span className="text-purple-400/50">_</span>
+                                    <span className="text-amber-400 select-none">›</span>
+                                    <span className="text-amber-400/50">_</span>
                                 </div>
                             )}
                         </div>
                     </div>
                 )}
-                <p className="text-gray-400 text-purple-200/60">We are splitting your file. Please wait.</p>
               </div>
             </motion.div>
           )}
 
           {status === 'completed' && (
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="py-12 flex flex-col items-center gap-10">
-              <div className="w-24 h-24 bg-purple-500/10 rounded-full flex items-center justify-center border border-purple-500/20">
-                <FileCheck size={48} className="text-purple-500" />
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="py-8 flex flex-col items-center gap-8">
+              <div className="w-20 h-20 bg-emerald-500/15 rounded-2xl flex items-center justify-center border border-emerald-500/30">
+                <FileCheck size={40} className="text-emerald-400" />
               </div>
               <div className="text-center space-y-2">
-                <h3 className="text-3xl font-bold">Splitting Complete!</h3>
-                <p className="text-gray-400">Generated {numChunks} clips from your original file.</p>
+                <h3 className="text-3xl font-serif font-bold text-white">Splitting Complete!</h3>
+                <p className="text-gray-300">Successfully generated {numChunks} audio segments.</p>
               </div>
               <div className="flex w-full gap-4">
-                <button onClick={handleDownload} className="flex-1 btn-primary bg-purple-600 hover:bg-purple-500 shadow-purple-500/20 hover:shadow-purple-500/40 py-4 text-xl flex items-center justify-center gap-3">
-                  <Download size={24} /> Download (.ZIP)
+                <button onClick={handleDownload} className="flex-1 btn-bazaar-gold py-4 text-lg flex items-center justify-center gap-3">
+                  <Download size={22} className="text-[#070a12]" /> Download Segments (.ZIP)
                 </button>
-                <button onClick={reset} className="btn-secondary px-6">
-                  <Trash2 className="text-gray-400" />
+                <button onClick={reset} className="btn-bazaar-ghost px-5">
+                  <Trash2 className="text-gray-300" />
                 </button>
               </div>
 
               {/* Instructions for NotebookLM */}
-              <div className="w-full mt-2 bg-white/5 border border-white/10 rounded-xl p-6 text-left space-y-4">
-                <h4 className="text-lg font-bold text-purple-400 flex items-center gap-2">
-                  <span>Transcription Instructions</span>
+              <div className="w-full bg-[#0a0e1a] border border-amber-500/25 rounded-2xl p-6 text-left space-y-4 shadow-xl">
+                <h4 className="text-base font-serif font-bold text-amber-300 flex items-center gap-2">
+                  <span>NotebookLM Transcription Workflow</span>
                 </h4>
-                <p className="text-sm text-gray-300 leading-relaxed">
-                  After downloading the zip, unzip the files, paste on to{' '}
-                  <a href="https://notebooklm.google.com/notebook/a9d76894-2bed-484e-ac8d-0aa85dde1cd1?addSource=true" target="_blank" rel="noreferrer" className="text-blue-400 hover:underline inline-flex items-center gap-1 font-semibold">
-                    NotebookLM <ExternalLink size={14} />
+                <p className="text-xs text-gray-300 leading-relaxed">
+                  After downloading the ZIP, extract the segments and upload them to{' '}
+                  <a href="https://notebooklm.google.com/notebook/a9d76894-2bed-484e-ac8d-0aa85dde1cd1?addSource=true" target="_blank" rel="noreferrer" className="text-amber-400 hover:underline inline-flex items-center gap-1 font-bold">
+                    NotebookLM <ExternalLink size={12} />
                   </a>
-                  {' '}and Paste the prompt to start transcription:
+                  . Copy and paste the prompt below to perform verbatim transcription:
                 </p>
                 
                 <div className="relative group">
-                  <pre className="bg-black/50 p-4 rounded-lg text-xs text-gray-300 font-mono whitespace-pre-wrap overflow-y-auto max-h-60 border border-white/10 custom-scrollbar">
+                  <pre className="bg-[#080b14] p-4 rounded-xl text-xs text-gray-300 font-mono whitespace-pre-wrap overflow-y-auto max-h-60 border border-amber-500/20 custom-scrollbar">
                     {PROMPT_TEXT}
                   </pre>
                   <button 
-                    onClick={() => navigator.clipboard.writeText(PROMPT_TEXT)}
-                    className="absolute top-2 right-2 p-2 bg-white/10 hover:bg-white/20 rounded-md text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={copyPrompt}
+                    className="absolute top-3 right-3 px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 rounded-lg text-xs font-bold text-amber-300 transition-all flex items-center gap-1.5"
                     title="Copy Prompt"
                   >
-                    <Copy size={16} />
+                    <Copy size={14} />
+                    <span>{copied ? "COPIED!" : "COPY PROMPT"}</span>
                   </button>
                 </div>
               </div>
@@ -297,14 +306,14 @@ function Transcription() {
 
           {status === 'failed' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-12 flex flex-col items-center gap-6">
-              <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center border border-red-500/20">
-                <AlertCircle size={32} className="text-red-500" />
+              <div className="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center border border-rose-500/30">
+                <AlertCircle size={32} className="text-rose-400" />
               </div>
               <div className="text-center space-y-2">
-                <h3 className="text-xl font-bold text-red-500">Splitting Failed</h3>
-                <p className="text-gray-400">{error || "The processing failed. Please check the file format."}</p>
+                <h3 className="text-xl font-bold text-rose-400">Splitting Failed</h3>
+                <p className="text-gray-300">{error || "The processing failed. Please check the file format."}</p>
               </div>
-              <button onClick={reset} className="btn-secondary">Try Again</button>
+              <button onClick={reset} className="btn-bazaar-ghost">Try Again</button>
             </motion.div>
           )}
         </div>
@@ -316,9 +325,9 @@ function Transcription() {
             initial={{ opacity: 0, y: 20 }} 
             animate={{ opacity: 1, y: 0 }} 
             exit={{ opacity: 0, scale: 0.95 }}
-            className="mt-6 p-4 glass-card border-red-500/20 bg-red-500/5 text-red-100 flex items-center gap-3"
+            className="mt-6 p-4 bazaar-card border-rose-500/30 bg-rose-500/10 text-rose-200 flex items-center gap-3"
           >
-            <AlertCircle className="text-red-400" />
+            <AlertCircle className="text-rose-400" />
             <span className="text-sm font-medium">{error}</span>
           </motion.div>
         )}

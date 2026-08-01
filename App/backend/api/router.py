@@ -34,20 +34,22 @@ async def update_job_progress(job_id, completed, total, message=None):
         jobs[job_id]["logs"].append(f"[{completed}/{total}] {message}")
 
 async def cleanup_old_files():
-    """Remove files older than 1 hour from uploads and outputs."""
+    """Remove files and directories older than 1 hour from uploads and outputs."""
     import time
     now = time.time()
     for directory in [UPLOAD_DIR, OUTPUT_DIR]:
         if not directory.exists():
             continue
         for file_path in directory.iterdir():
-            # Only delete files, and skip folders unless we specifically want to handle them
-            if file_path.is_file():
+            try:
                 if now - file_path.stat().st_mtime > 3600: # 1 hour
-                    try:
+                    if file_path.is_file():
                         file_path.unlink()
-                    except:
-                        pass
+                    elif file_path.is_dir():
+                        shutil.rmtree(file_path)
+            except Exception:
+                pass
+
 
 async def translate_task(job_id: str, input_path: Path, output_path: Path, target_lang: str):
     try:
